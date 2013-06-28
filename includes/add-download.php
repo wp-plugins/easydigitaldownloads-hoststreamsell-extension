@@ -368,12 +368,14 @@ function edd_append_purchase_link_stream($download_id) {
                 $apple_video_height = $video_height;
 
                 $width_height = $video_width.",".$video_height;
+
+
                 $video = $video."
 
-                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/vendors/jquery/jquery-1.6.2.min.js\"></script>
-                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
-                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/mod/secure_videos/jwplayer/jwplayer.js\"></script>
 
+                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/vendors/jquery/jquery-1.6.2.min.js\"></script>
+                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
+		<script type=\"text/javascript\" src=\"http://hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
                 <center>
                 <div>
                 <div id='videoframe'>If you are seing this you may not have Flash installed!</div>
@@ -395,21 +397,30 @@ function edd_append_purchase_link_stream($download_id) {
                 var is_webos = (agent.indexOf('webos')!=-1);
 
 
-                if (is_iphone) { html5Player();}
-                else if (is_ipad) { html5Player(); }
-                else { newJWPlayerDynamic(); }
+                newJWPlayerDynamic(); 
+
 
 
                 function newJWPlayerDynamic()
                 {
-                  var so = new SWFObject('http://www.hoststreamsell.com/mod/secure_videos/jwplayer/player.swf','ply',$width_height,'9','#ffffff');
-                  so.addParam('allowfullscreen','true');
-                  so.addParam('allowscriptaccess','always');
-                  so.addParam('wmode','opaque');
-                  so.addVariable('autostart','false');
-                  so.addVariable('file', 'http://www.hoststreamsell.com/mod/secure_videos/private_media_playlist.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!');
-                  so.addVariable('skin', 'http://www.hoststreamsell.com/mod/secure_videos/jwplayer/glow_hss.zip'); 
-                  so.write('videoframe');
+
+
+jwplayer('videoframe').setup({
+    playlist: [{
+        image: '$hss_video_big_thumb_url',
+        sources: [{
+            file: 'http://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
+            type: 'rtmp'
+        },{
+            file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'
+        }]
+    }],
+    height: 340,
+    primary: 'flash',
+    width: 580
+});
+
+
                 }
 
                 function sethtml5PlayerBitrate(bitrate)
@@ -439,6 +450,8 @@ function edd_append_purchase_link_stream($download_id) {
                 </div>
                 </center>
                 <BR>";
+
+
 
 			}
 

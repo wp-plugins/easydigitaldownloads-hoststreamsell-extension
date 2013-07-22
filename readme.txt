@@ -62,6 +62,6 @@ No this only works with the HostStreamSell video platform
 
 * Initial version uploaded to WordPress
 
-0.5
+= 0.5 =
 
 * Releasewith fix for viewing on android devices

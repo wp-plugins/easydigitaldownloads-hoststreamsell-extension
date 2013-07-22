@@ -344,7 +344,7 @@ function edd_append_purchase_link_stream($download_id) {
 
                 $hss_video_smil = $xml->result->smil;
                 $hss_video_big_thumb_url = $xml->result->big_thumb_url;
-                
+                $hss_rtsp_url = $xml->result->rtsp_url;
                 $referrer = site_url();
 
 		$content_width = $video_width;
@@ -373,9 +373,9 @@ function edd_append_purchase_link_stream($download_id) {
                 $video = $video."
 
 
-                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/vendors/jquery/jquery-1.6.2.min.js\"></script>
-                <script type=\"text/javascript\" src=\"http://hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
-		<script type=\"text/javascript\" src=\"http://hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
+                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/vendors/jquery/jquery-1.6.2.min.js\"></script>
+                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
+		<script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
                 <center>
                 <div>
                 <div id='videoframe'>If you are seing this you may not have Flash installed!</div>
@@ -397,59 +397,61 @@ function edd_append_purchase_link_stream($download_id) {
                 var is_webos = (agent.indexOf('webos')!=-1);
 
 
-                newJWPlayerDynamic(); 
+		if (is_iphone) { html5Player();}
+		else if (is_ipad) { html5Player(); }
+		else if (is_android) { rtspPlayer(); }
+		else if (is_webos) { rtspPlayer(); }
+		else if (is_blackberry) { rtspPlayer(); }
+		else if (is_playstation) { newJWPlayer(); }
+		else { newJWPlayer(); }
 
 
 
-                function newJWPlayerDynamic()
+                function newJWPlayer()
                 {
-
-
-jwplayer('videoframe').setup({
-    playlist: [{
-        image: '$hss_video_big_thumb_url',
-        sources: [{
-            file: 'http://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
-            type: 'rtmp'
-        },{
-            file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'
-        }]
-    }],
-    height: 340,
-    primary: 'flash',
-    width: 580
-});
-
-
+			jwplayer('videoframe').setup({
+			    playlist: [{
+			        image: '$hss_video_big_thumb_url',
+		        	sources: [{
+			            file: 'http://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
+			            type: 'rtmp'
+			        },{
+		        	    file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'
+			        }]
+			    }],
+			    height: 340,
+			    primary: 'flash',
+			    width: 580
+			});
                 }
 
-                function sethtml5PlayerBitrate(bitrate)
-                {
-                var player=document.getElementById(\"videoframe\");
-                player.innerHTML='<VIDEO '+
-                'SRC=\"http://".$hss_video_mediaserver_ip.":1935/hss/'+bitrate+'/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."\" '+
-                'HEIGHT=\"".$apple_video_height."\" '+
-                'WIDTH=\"".$apple_video_width."\" '+
-                'poster=\"".$hss_video_big_thumb_url."\" '+
-                'title=\"".$hss_video_title."\">'+
-                '</video>';
-                }
+		function rtspPlayer()
+		{
+	                var player=document.getElementById(\"videoframe\");
+			player.innerHTML='<A HREF=\"rtsp://".$hss_video_mediaserver_ip."/hss/mp4:".$hss_rtsp_url."".$hss_video_smil_token."&referer=".urlencode($referrer)."\">'+
+			'<IMG SRC=\"".$hss_video_big_thumb_url."\" '+
+			'ALT=\"Start Mobile Video\" '+
+			'BORDER=\"0\" '+
+			'HEIGHT=\"240\"'+
+			'WIDTH=\"320\">'+
+			'</A>';
+		}
 
                 function html5Player()
                 {
-                var player=document.getElementById(\"videoframe\");
-                player.innerHTML='<video controls '+
-                'src=\"http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."\" '+
-                'HEIGHT=\"".$apple_video_height."\" '+
-                'WIDTH=\"".$apple_video_width."\" '+
-                'poster=\"".$hss_video_big_thumb_url."\" '+
-                'title=\"".$hss_video_title."\">'+
-                '</video>';
-                }
-                </SCRIPT>
-                </div>
-                </center>
-                <BR>";
+	                var player=document.getElementById(\"videoframe\");
+	                player.innerHTML='<video controls '+
+	                'src=\"http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."\" '+
+	                'HEIGHT=\"".$apple_video_height."\" '+
+	                'WIDTH=\"".$apple_video_width."\" '+
+	                'poster=\"".$hss_video_big_thumb_url."\" '+
+	                'title=\"".$hss_video_title."\">'+
+	                '</video>';
+	        }
+	        </SCRIPT>
+	        </div>
+	        </center>
+	        <BR>";
 
 
 

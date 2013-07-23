@@ -19,8 +19,7 @@ give access for, whether you want to allow downloads or be stream only, and
 whether you want to limit the amount of usage in terms of a bandwidth usage cap.
 
 
-**Follow this plugin on [Git
-Hub](https://github.com/hoststreamsell/easydigitaldownloads_hoststreamsell_ext)**
+**Follow this plugin on [GitHub](https://github.com/hoststreamsell/easydigitaldownloads_hoststreamsell_ext)**
 
 Features of the plugin include:
 

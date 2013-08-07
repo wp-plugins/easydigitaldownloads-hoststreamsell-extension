@@ -126,7 +126,7 @@ function hss_options_page () {
 
                 <!-- Display Plugin Icon, Header, and Description -->
                 <div class="icon32" id="icon-options-general"><br></div>
-                <h2>HostStreamSell S2Member Plugin Settings</h2>
+                <h2>HostStreamSell Plugin Settings</h2>
                 <p>Please enter the settings below...</p>
 
                 <!-- Beginning of the Plugin Options Form -->
@@ -145,6 +145,19 @@ function hss_options_page () {
                                                 <input type="text" size="57" name="hss_options[api_key]" value="<?php echo $options['api_key']; ?>" />
                                         </td>
                                 </tr>
+                                <tr>
+                                        <th scope="row">Video Player Size (leave blank touse defaults)</th>
+                                        <td>
+                                                Width <input type="text" size="10" name="hss_options[player_width_default]" value="<?php echo $options['player_width_default']; ?>" /> Height  <input type="text" size="10" name="hss_options[player_height_default]" value="<?php echo $options['player_height_default']; ?>" />
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <th scope="row">Mobile Device Video Player Size (leave blank touse defaults)</th>
+                                        <td>
+                                                Width <input type="text" size="10" name="hss_options[player_width_mobile]" value="<?php echo $options['player_width_mobile']; ?>" /> Height  <input type="text" size="10" name="hss_options[player_height_mobile]" value="<?php echo $options['player_height_mobile']; ?>" />
+                                        </td>
+                                </tr>
+
                                 <tr>
                                         <th scope="row">Disable updating video descriptions</th>
                                         <td>
@@ -342,11 +355,9 @@ function edd_append_purchase_link_stream($download_id) {
                 		$video_width = $xml->result->width;
 		                $video_height = $xml->result->height;
 		                if($video_width>640){
-		                        $width_height = "640,390";
 					$video_width = "640";
 					$video_height = "390";
-		                }else
-		                        $width_height = $video_width.",".$video_height;
+		                }
 		                $referrer = site_url();
 				$hss_video_user_token = $xml->result->user_token;
 		
@@ -379,12 +390,20 @@ function edd_append_purchase_link_stream($download_id) {
 		                }
 		                $apple_video_width = $video_width;
 		                $apple_video_height = $video_height;
-		
-		                $width_height = $video_width.",".$video_height;
+				
+				if($options['player_width_default']!="")
+					$video_width=$options['player_width_default'];
+				if($options['player_height_default']!="")
+					$video_height=$options['player_height_default'];
+				if($is_iphone){
+	                                if($options['player_width_mobile']!="")
+	                                        $video_width=$options['player_width_mobile'];
+	                                if($options['player_height_mobile']!="")
+	                                        $video_height=$options['player_height_mobile'];
+				}
 
 
 		                $video = $video."
-		                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/vendors/jquery/jquery-1.6.2.min.js\"></script>
 		                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
 				<script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
 		                <center>
@@ -427,9 +446,9 @@ function edd_append_purchase_link_stream($download_id) {
 				        	    file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'
 					        }]
 					    }],
-					    height: 340,
+					    height: $video_height,
 					    primary: 'flash',		
-					    width: 580
+					    width: $video_width
 					});
 		                }
 
@@ -440,8 +459,8 @@ function edd_append_purchase_link_stream($download_id) {
 					'<IMG SRC=\"".$hss_video_big_thumb_url."\" '+
 					'ALT=\"Start Mobile Video\" '+
 					'BORDER=\"0\" '+
-					'HEIGHT=\"240\"'+
-					'WIDTH=\"320\">'+
+					'HEIGHT=\"$video_height\"'+
+					'WIDTH=\"$video_width\">'+
 					'</A>';
 				}
 
@@ -491,10 +510,13 @@ function edd_append_purchase_link_stream_two( $download_id ) {
                                 $my_query = new WP_Query($args);
                                 if( $my_query->have_posts() ) {
                                         //$video = $video."<div><BR></div>";
-                                        $video = $video."<div>This video can be purchased in the following series:</div>";
+                                        $video = $video."<div><br>This video can be purchased in the following series:</div>";
                                         while ( $my_query->have_posts() ) {
+						
                                                 $video_group_post = $my_query->next_post();
-                                                $video = $video."<div><a href='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
+						$bundled_videos = get_post_meta($video_group_post->ID, '_edd_bundled_products', true);
+						if (in_array($post->ID, $bundled_videos))
+                                                	$video = $video."<div><a href='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
                                         }
 					if(!get_post_meta($post->ID, '_edd_hide_purchase_link', true)) 
 		        			$video = $video."<BR>This video can be purchased on its own:";

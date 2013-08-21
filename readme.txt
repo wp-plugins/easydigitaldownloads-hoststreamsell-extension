@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.4
-Stable tag: 0.7
+Stable tag: 0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,3 +72,8 @@ No this only works with the HostStreamSell video platform
 = 0.7 =
 
 *Add support to set video player width and height as plugin settings
+
+= 0.8 =
+
+*Added filter to be able to control what text or links are shown after the
+video player from within a theme

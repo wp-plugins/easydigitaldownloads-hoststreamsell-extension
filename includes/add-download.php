@@ -146,13 +146,13 @@ function hss_options_page () {
                                         </td>
                                 </tr>
                                 <tr>
-                                        <th scope="row">Video Player Size (leave blank touse defaults)</th>
+                                        <th scope="row">Video Player Size (leave blank to use defaults)</th>
                                         <td>
                                                 Width <input type="text" size="10" name="hss_options[player_width_default]" value="<?php echo $options['player_width_default']; ?>" /> Height  <input type="text" size="10" name="hss_options[player_height_default]" value="<?php echo $options['player_height_default']; ?>" />
                                         </td>
                                 </tr>
                                 <tr>
-                                        <th scope="row">Mobile Device Video Player Size (leave blank touse defaults)</th>
+                                        <th scope="row">Mobile Device Video Player Size (leave blank to use defaults)</th>
                                         <td>
                                                 Width <input type="text" size="10" name="hss_options[player_width_mobile]" value="<?php echo $options['player_width_mobile']; ?>" /> Height  <input type="text" size="10" name="hss_options[player_height_mobile]" value="<?php echo $options['player_height_mobile']; ?>" />
                                         </td>
@@ -300,7 +300,7 @@ add_action('save_post', 'edd_download_meta_box_save_stream');
 
 
 
-function edd_append_purchase_link_stream($download_id) {
+function hss_edd_before_download_content($download_id) {
         global $post;
 	global $is_iphone;
         global $user_ID;
@@ -375,11 +375,9 @@ function edd_append_purchase_link_stream($download_id) {
 				$content_height = $video_height;
 
 		                if($is_iphone){
-                		        if(isset($options['mobile_device_content_width']))
-		                                if(trim($options['mobile_device_content_width'])!="")
-		                                        $content_width = trim($options['mobile_device_content_width']);
-		                }elseif($content_width<320){
-		                        $content_width=320;
+		                	if($content_width<320){
+			                        $content_width=320;
+					}
 		                }
 
 		                if($video_width>$content_width){
@@ -388,20 +386,18 @@ function edd_append_purchase_link_stream($download_id) {
 		                        $multiple = $video_width/40;
 		                        $video_height = $multiple*30;
 		                }
-		                $apple_video_width = $video_width;
-		                $apple_video_height = $video_height;
 				
-				if($options['player_width_default']!="")
-					$video_width=$options['player_width_default'];
-				if($options['player_height_default']!="")
-					$video_height=$options['player_height_default'];
 				if($is_iphone){
 	                                if($options['player_width_mobile']!="")
 	                                        $video_width=$options['player_width_mobile'];
 	                                if($options['player_height_mobile']!="")
 	                                        $video_height=$options['player_height_mobile'];
+				}else{
+	                                if($options['player_width_default']!="")
+	                                        $video_width=$options['player_width_default'];
+        	                        if($options['player_height_default']!="")
+                	                        $video_height=$options['player_height_default'];
 				}
-
 
 		                $video = $video."
 		                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
@@ -425,9 +421,9 @@ function edd_append_purchase_link_stream($download_id) {
 		                var is_blackberry = (agent.indexOf('BlackBerry')!=-1);
 		                var is_android = (agent.indexOf('android')!=-1);
 		                var is_webos = (agent.indexOf('webos')!=-1);
-		
+	
 				if (is_iphone) { html5Player();}
-				else if (is_ipad) { html5Player(); }
+                                else if (is_ipad) { html5Player(); }
 				else if (is_android) { rtspPlayer(); }
 				else if (is_webos) { rtspPlayer(); }
 				else if (is_blackberry) { rtspPlayer(); }
@@ -464,19 +460,20 @@ function edd_append_purchase_link_stream($download_id) {
 					'</A>';
 				}
 
-		                function html5Player()
-		                {
-			                var player=document.getElementById(\"videoframe\");
-			                player.innerHTML='<video controls '+
-			                'src=\"http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."\" '+
-			                'HEIGHT=\"".$apple_video_height."\" '+
-			                'WIDTH=\"".$apple_video_width."\" '+
-			                'poster=\"".$hss_video_big_thumb_url."\" '+
-			                'title=\"".$hss_video_title."\">'+
-			                '</video>';
-			        }
-			        </SCRIPT>
-			        </div>
+                                function html5Player()
+                                {
+                                        var player=document.getElementById(\"videoframe\");
+                                        player.innerHTML='<video controls '+
+                                        'src=\"http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."\" '+
+                                        'HEIGHT=\"".$video_height."\" '+
+                                        'WIDTH=\"".$video_width."\" '+
+                                        'poster=\"".$hss_video_big_thumb_url."\" '+
+                                        'title=\"".$hss_video_title."\">'+
+                                        '</video>';
+                                }
+
+			        </script>
+				</div>
 			        </center>
 			        <BR>";
 
@@ -484,69 +481,18 @@ function edd_append_purchase_link_stream($download_id) {
         }
 	echo $video;
 }
-add_action( 'edd_before_download_content', 'edd_append_purchase_link_stream' );
+add_action( 'edd_before_download_content', 'hss_edd_before_download_content' );
 
-function edd_append_purchase_link_stream_two( $download_id ) {
-	global $post;
-	$video = "";
+function hss_edd_after_download_content($download_id) {
+        global $post;
 
-        if($post->post_type == 'download' && is_singular() && is_main_query()) {
-                        if(get_post_meta($post->ID, 'is_streaming_video', true)) {
-                                $options = get_option('hss_options');
-                                $userId = $user_ID;
+        ob_start();
+        do_action( 'hss_edd_show_video_purchase_details', $post->ID );
+        $content .= ob_get_clean();
 
-                                //if(edd_has_user_purchased($user_ID, $post->ID))
-                                //      $video = "<center>You have access to this video</center>";
-
-                                $hss_video_id = get_post_meta($post->ID, '_edd_video_id', true);
-
-                                $args=array(
-                                   'meta_key'=> 'is_streaming_video_bundle',
-                                   'meta_value'=> true,
-                                   'post_type' => 'download',
-                                );
-                                _log($args);
-                                $my_query = null;
-                                $my_query = new WP_Query($args);
-                                if( $my_query->have_posts() ) {
-                                        //$video = $video."<div><BR></div>";
-                                        $video = $video."<div><br>This video can be purchased in the following series:</div>";
-                                        while ( $my_query->have_posts() ) {
-						
-                                                $video_group_post = $my_query->next_post();
-						$bundled_videos = get_post_meta($video_group_post->ID, '_edd_bundled_products', true);
-						if (in_array($post->ID, $bundled_videos))
-                                                	$video = $video."<div><a href='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
-                                        }
-					if(!get_post_meta($post->ID, '_edd_hide_purchase_link', true)) 
-		        			$video = $video."<BR>This video can be purchased on its own:";
-                                }
-
-			}
-	
-			
-		        if(!edd_has_variable_prices($download_id))
-        		        $video = $video."<BR>".get_post_meta($download_id, '_price_details', true)."<BR>";
-	        	else
-        	        	$video = $video."<BR>";
-		
-	}
-                        if(get_post_meta($post->ID, 'is_streaming_video_bundle', true)) {
-                                $options = get_option('hss_options');
-                                $userId = $user_ID;
-                                $video = "<div>Videos included in this series:</div>";
-                                $bundled_videos = get_post_meta($post->ID, '_edd_bundled_products', true);
-                                $count = sizeof($bundled_videos);
-                                for($counter=0;$counter<$count;$counter++){
-                                        $vidpost = get_post($bundled_videos[$counter]);
-                                        $video = $video."<div>- <a href='".get_permalink($bundled_videos[$counter])."'>".$vidpost->post_title."</a></div>";
-                                }
-                                $video = $video."<div><BR></div>";
-                        }
-
-	echo $video;
+        echo $content;
 }
-add_action( 'edd_after_download_content', 'edd_append_purchase_link_stream_two' ,5);
+add_action( 'edd_after_download_content', 'hss_edd_after_download_content', 5 );
 
 function edd_complete_purchase_add_video($payment_id, $new_status, $old_status) {
 

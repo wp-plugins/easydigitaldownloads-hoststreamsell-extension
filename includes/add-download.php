@@ -140,24 +140,29 @@ function hss_options_page () {
 
                                 <!-- Textbox Control -->
                                 <tr>
-                                        <th scope="row">API KEY</th>
+                                        <th scope="row">HostStreamSell API Key<BR><i>(available from your account on www.hoststreamsell.com)</i></th>
                                         <td>
-                                                <input type="text" size="57" name="hss_options[api_key]" value="<?php echo $options['api_key']; ?>" />
+                                                <input type="text" size="40" name="hss_options[api_key]" value="<?php echo $options['api_key']; ?>" />
                                         </td>
                                 </tr>
                                 <tr>
-                                        <th scope="row">Video Player Size (leave blank to use defaults)</th>
+                                        <th scope="row">Video Player Size<BR><i>(leave blank to use defaults)</i></th>
                                         <td>
                                                 Width <input type="text" size="10" name="hss_options[player_width_default]" value="<?php echo $options['player_width_default']; ?>" /> Height  <input type="text" size="10" name="hss_options[player_height_default]" value="<?php echo $options['player_height_default']; ?>" />
                                         </td>
                                 </tr>
                                 <tr>
-                                        <th scope="row">Mobile Device Video Player Size (leave blank to use defaults)</th>
+                                        <th scope="row">Mobile Device Video Player Size<BR><i>(leave blank to use defaults)</i></th>
                                         <td>
                                                 Width <input type="text" size="10" name="hss_options[player_width_mobile]" value="<?php echo $options['player_width_mobile']; ?>" /> Height  <input type="text" size="10" name="hss_options[player_height_mobile]" value="<?php echo $options['player_height_mobile']; ?>" />
                                         </td>
                                 </tr>
-
+                                <tr>
+                                        <th scope="row">JW Player License Key<BR><i>(available from www.longtailvideo.com)</i></th>
+                                        <td>
+                                                <input type="text" size="50" name="hss_options[jwplayer_license]" value="<?php echo $options['jwplayer_license']; ?>" />
+                                        </td>
+                                </tr>
                                 <tr>
                                         <th scope="row">Disable updating video descriptions</th>
                                         <td>
@@ -402,6 +407,7 @@ function hss_edd_before_download_content($download_id) {
 		                $video = $video."
 		                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
 				<script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
+				<script type=\"text/javascript\">jwplayer.key=\"".$options['jwplayer_license']."\";</script>
 		                <center>
                 		<div>
 		                <div id='videoframe'>If you are seing this you may not have Flash installed!</div>

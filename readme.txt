@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.4
-Stable tag: 0.9
+Stable tag: 0.91
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,3 +81,7 @@ video player from within a theme
 = 0.9 =
 
 *Added setting to add a JW Player license to remove the logo
+
+= 0.91 =
+
+*changed js and jwplayer resource links to https

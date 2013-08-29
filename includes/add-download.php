@@ -405,8 +405,8 @@ function hss_edd_before_download_content($download_id) {
 				}
 
 		                $video = $video."
-		                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
-				<script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
+		                <script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
+				<script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
 				<script type=\"text/javascript\">jwplayer.key=\"".$options['jwplayer_license']."\";</script>
 		                <center>
                 		<div>
@@ -442,7 +442,7 @@ function hss_edd_before_download_content($download_id) {
 					    playlist: [{
 					        image: '$hss_video_big_thumb_url',
 				        	sources: [{
-					            file: 'http://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
+					            file: 'https://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
 					            type: 'rtmp'
 					        },{
 				        	    file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'

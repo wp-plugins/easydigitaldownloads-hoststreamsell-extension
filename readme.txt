@@ -1,11 +1,11 @@
-=== Plugin Name ===
+=== Easy Digital Downloads HSS Extension for Streaming Video ===
 Author URI: http://www.hoststreamsell.com
 Plugin URI: http://wordpress2.hoststreamsell.com
 Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.4
-Stable tag: 0.91
+Stable tag: 0.92
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,3 +85,7 @@ video player from within a theme
 = 0.91 =
 
 *changed js and jwplayer resource links to https
+
+= 0.92 =
+
+*included jwplayer option to stretch thumbnail image to fill player

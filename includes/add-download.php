@@ -320,7 +320,18 @@ function hss_edd_before_download_content($download_id) {
 				//	$video = "<center>You have access to this video</center>";
 		
 				$hss_video_id = get_post_meta($post->ID, '_edd_video_id', true);
-		                $params = array(
+                                /*$params = array(
+                                   #'method' => 'secure_videos.get_video_playback_details',
+                                   'api_key' => $options['api_key'],
+                                   'video_id' => $hss_video_id,
+                                   'private_user_id' => $userId,
+                                   'expands' => 'playback_details',
+                                   'force_allow' => 'yes'
+                                );
+                                _log($params);*/
+                                #$response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
+
+/*		                $params = array(
 		                   'method' => 'secure_videos.get_video_playback_details',
 		                   'api_key' => $options['api_key'],
 		                   'video_id' => $hss_video_id,
@@ -328,7 +339,9 @@ function hss_edd_before_download_content($download_id) {
 		                );
 				_log($params);
 		                $response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
-		                        'method' => 'POST',
+*/
+                                $response = wp_remote_post( "https://www.hoststreamsell.com/api/1/xml/videos?api_key=".$options['api_key']."&video_id=$hss_video_id&private_user_id=$userId&expands=playback_details&force_allows=no", array(
+		                        'method' => 'GET',
 		                        'timeout' => 15,
 		                        'redirection' => 5,
 		                        'httpversion' => '1.0',
@@ -439,6 +452,7 @@ function hss_edd_before_download_content($download_id) {
 		                function newJWPlayer()
 		                {
 					jwplayer('videoframe').setup({
+					    'stretching':'fill',
 					    playlist: [{
 					        image: '$hss_video_big_thumb_url',
 				        	sources: [{

@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.4
-Stable tag: 0.92
+Stable tag: 0.93
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,72 @@ account
 3. Click the Update key to Pull video information from HostStreamSell platform
 and insert into the system automatically (also to update)
 
+
+See https://easydigitaldownloads.com/themes/ for some pre built options for themes specifically designed to work with Easy DigitalDownloads.
+https://easydigitaldownloads.com/themes/edd-starter-theme/ is a nice free
+theme which is a good starting point.
+
+Create a page with the [download_history] shortcode if you want customers to
+be able to see all videos purchased and download a capy.
+
+Add the following to your template functions.php file to add some extra
+information on the video page.
+
+function hss_edd_append_purchase_info_and_links( $download_id ) {
+        global $post;
+        $video = "";
+        if($post->post_type == 'download' && is_singular() && is_main_query())
+	{
+                if(get_post_meta($post->ID, 'is_streaming_video', true)) {
+                        $options = get_option('hss_options');
+                        $userId = $user_ID;
+                        $hss_video_id = get_post_meta($post->ID,'_edd_video_id', true);
+
+                        $args=array(
+                           'meta_key'=> 'is_streaming_video_bundle',
+                           'meta_value'=> true,
+                           'post_type' => 'download',
+                        );
+                        _log($args);
+                        $my_query = null;
+                        $my_query = new WP_Query($args);
+                        if( $my_query->have_posts() ) {
+                                $video = $video."<div><BR></div>";
+                                $video = $video."<div><br>This video can bepurchased in the following series:</div>";
+                                while ( $my_query->have_posts() ) {
+                                        $video_group_post =$my_query->next_post();
+                                        $bundled_videos =get_post_meta($video_group_post->ID, '_edd_bundled_products', true);
+                                        if (in_array($post->ID,$bundled_videos))
+                                                $video = $video."<div><ahref='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
+                                }
+                                if(!get_post_meta($post->ID,'_edd_hide_purchase_link', true))
+                                        $video = $video."<BR>This video can bepurchased on its own:";
+                        }
+                }
+                if(!edd_has_variable_prices($download_id))
+                        $video = $video."<BR>".get_post_meta($download_id,'_price_details', true)."<BR>";
+                else
+                        $video = $video."<BR>";
+        }
+        if(get_post_meta($post->ID, 'is_streaming_video_bundle', true)) {
+                $options = get_option('hss_options');
+                $userId = $user_ID;
+                $video = "<div>Videos included in this series:</div>";
+                $bundled_videos = get_post_meta($post->ID,'_edd_bundled_products', true);
+                $count = sizeof($bundled_videos);
+                for($counter=0;$counter<$count;$counter++){
+                        $vidpost = get_post($bundled_videos[$counter]);
+                        $video = $video."<div>- <ahref='".get_permalink($bundled_videos[$counter])."'>".$vidpost->post_title."</a></div>";
+                }
+                $video = $video."<div><BR></div>";
+        }
+
+        echo $video;
+}
+add_action( 'hss_edd_show_video_purchase_details',
+'hss_edd_append_purchase_info_and_links' ,5);
+
+
 == Frequently Asked Questions ==
 
 = Does this work with other video platforms =
@@ -43,16 +109,6 @@ and insert into the system automatically (also to update)
 No this only works with the HostStreamSell video platform
 
 == Screenshots ==
-
-1. Download products overview
-2. Download configuration
-3. Download configuration details
-4. Download configuration with variable prices
-5. Payment history
-6. Discount codes
-7. Earnings and sales reports
-8. Add to cart / purchase button
-9. Checkout screen
 
 
 == Changelog ==
@@ -89,3 +145,8 @@ video player from within a theme
 = 0.92 =
 
 *included jwplayer option to stretch thumbnail image to fill player
+
+= 0.93 =
+
+*made the jwplayer stretching setting a plugin option so that this can be
+tweaked as needed

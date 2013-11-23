@@ -164,6 +164,35 @@ function hss_options_page () {
                                         </td>
                                 </tr>
                                 <tr>
+                                        <th scope="row">JW Player Stretching<BR><i>(http://www.longtailvideo.com/support/jw-player/28839/embedding-the-player)</i></th>
+                                        <td>
+                                                <select name="hss_options[jwplayer_stretching]">
+						<?
+						if (($options['jwplayer_stretching']=="none") or ($options['jwplayer_stretching']=="")){
+							?><option value="none" SELECTED>none</option><?
+						}else{
+							?><option value="none">none</option><?
+                                                }
+						if ($options['jwplayer_stretching']=="exactfit"){
+                                                        ?><option value="exactfit" SELECTED>exactfit</option><?
+                                                }else{
+                                                        ?><option value="exactfit">exactfit</option><?
+                                                }
+						if ($options['jwplayer_stretching']=="uniform"){
+                                                        ?><option value="uniform" SELECTED>uniform</option><?
+                                                }else{
+                                                        ?><option value="uniform">uniform</option><?
+                                                }
+						if ($options['jwplayer_stretching']=="fill"){
+                                                        ?><option value="fill" SELECTED>fill</option><?
+                                                }else{
+                                                        ?><option value="fill">fill</option>
+						<?}?>
+						</select>
+
+                                        </td>
+                                </tr>
+                                <tr>
                                         <th scope="row">Disable updating video descriptions</th>
                                         <td>
                                                 <input type="checkbox" name="hss_options[disable_desc_updates]" value="1"<?php checked( 1 == $options['disable_desc_updates']); ?> />
@@ -363,6 +392,7 @@ function hss_edd_before_download_content($download_id) {
 		                $title = $xml->result->title;
 		                $hss_video_title = $title;
 		                $user_has_access = $xml->result->user_has_access;
+				$user_can_download = $xml->result->user_can_download;
 				//$video = "".$user_has_access;
 				if($user_has_access=="true")
 					$video = "<center>You have access to this video</center>";
@@ -452,7 +482,7 @@ function hss_edd_before_download_content($download_id) {
 		                function newJWPlayer()
 		                {
 					jwplayer('videoframe').setup({
-					    'stretching':'fill',
+					    'stretching':'".$options["jwplayer_stretching"]."',
 					    playlist: [{
 					        image: '$hss_video_big_thumb_url',
 				        	sources: [{
@@ -494,8 +524,12 @@ function hss_edd_before_download_content($download_id) {
 
 			        </script>
 				</div>
-			        </center>
-			        <BR>";
+			        </center>";
+                                /*if($user_can_download=="true"){
+                                        $video .= "<BR><div><input type='button' id='$hss_video_id' class='myajaxdownloadlinks' value='Get Download Links'></div>
+                                        <div id='download_links_$hss_video_id'></div>";
+                                }*/
+			        $video .= "<BR>";
 
 			}
         }
@@ -1021,13 +1055,11 @@ function get_video_download_links($hss_video_id) {
         $options = get_option('hss_options');
         $userId = $user_ID;
 
-	//$encode_id = 162;
 
                 $params = array(
                    'method' => 'secure_videos.get_all_video_download_links',
                    'api_key' => $options['api_key'],
                    'video_id' => $hss_video_id,
-		   //'encode_id' => $encode_id,
                    'private_user_id' => $userId
                 );
                 _log($params);
@@ -1062,11 +1094,9 @@ function get_video_download_links($hss_video_id) {
                         {
                         	$url = $xml->result[0]->{'download_option'.$option_index}[0]->url;
                         	$name = $xml->result[0]->{'download_option'.$option_index}[0]->name;
-				#$return_string = $return_string.'<LI><a href="'.$url.'">'.$name.'</a></LI>';
 				$return_string = $return_string.'<div class="edd_download_file"><a href="'.$url.'">'.$name.'</a></div>';
 				$option_index+=1;
 			}
-			//$return_string = $return_string."</UL>";
 		}else{
 			$return_string = "<div>No Video file downloads</div>";
 		}
@@ -1076,15 +1106,6 @@ function get_video_download_links($hss_video_id) {
 }
 
 
-/*function pw_edd_product_labels( $labels ) {
-	$labels = array(
-	   'singular' => __('Video', 'http://wordpress2.hoststreamsell.com'),
-	   'plural' => __('Videos', 'http://wordpress2.hoststreamsell.com')
-	);
-	return $labels;
-}
-add_filter('edd_default_downloads_name', 'pw_edd_product_labels');
-*/
 function set_download_labels($labels) {
 	$labels = array(
 	'name' => _x('Videos', 'post type general name', 'edd'),

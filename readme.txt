@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.4
-Stable tag: 0.93
+Stable tag: 0.94
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,17 +65,24 @@ function hss_edd_append_purchase_info_and_links( $download_id ) {
                         _log($args);
                         $my_query = null;
                         $my_query = new WP_Query($args);
+                        $groups_found = false;
                         if( $my_query->have_posts() ) {
-                                $video = $video."<div><BR></div>";
-                                $video = $video."<div><br>This video can bepurchased in the following series:</div>";
                                 while ( $my_query->have_posts() ) {
                                         $video_group_post =$my_query->next_post();
                                         $bundled_videos =get_post_meta($video_group_post->ID, '_edd_bundled_products', true);
-                                        if (in_array($post->ID,$bundled_videos))
+                                        if (in_array($post->ID,$bundled_videos)){
+                                                if($groups_found==false){
+                                                        $video =$video."<div><BR></div>";
+                                                        $video =$video."<div><br>This video can be purchased in the following series:</div>";
+                                                        $groups_found=true;
+                                                }
                                                 $video = $video."<div><ahref='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
+                                        }
                                 }
-                                if(!get_post_meta($post->ID,'_edd_hide_purchase_link', true))
+                                if((!get_post_meta($post->ID,'_edd_hide_purchase_link', true)) and ($groups_found==true))
                                         $video = $video."<BR>This video can bepurchased on its own:";
+                                elseif(!get_post_meta($post->ID,'_edd_hide_purchase_link', true))
+                                        $video = $video."<BR>Video purchaseoptions:";
                         }
                 }
                 if(!edd_has_variable_prices($download_id))
@@ -98,8 +105,8 @@ function hss_edd_append_purchase_info_and_links( $download_id ) {
 
         echo $video;
 }
-add_action( 'hss_edd_show_video_purchase_details',
-'hss_edd_append_purchase_info_and_links' ,5);
+add_action( 'hss_edd_show_video_purchase_details','hss_edd_append_purchase_info_and_links' ,5);
+
 
 
 == Frequently Asked Questions ==
@@ -150,3 +157,7 @@ video player from within a theme
 
 *made the jwplayer stretching setting a plugin option so that this can be
 tweaked as needed
+
+= 0.94 =
+
+*fixed default jwplayer stretching option to be uniform. fixed some logic around creating groups

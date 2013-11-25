@@ -8,8 +8,7 @@ function hss_add_defaults() {
         $tmp = get_option('hss_options');
     if(($tmp['chk_default_options_db']=='1')||(!is_array($tmp))) {
                 delete_option('hss_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
-                $arr = array(   "api_key" => "",
-                );
+                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform" );
                 update_option('hss_options', $arr);
         }
 }
@@ -168,7 +167,12 @@ function hss_options_page () {
                                         <td>
                                                 <select name="hss_options[jwplayer_stretching]">
 						<?
-						if (($options['jwplayer_stretching']=="none") or ($options['jwplayer_stretching']=="")){
+                                                if (($options['jwplayer_stretching']=="uniform") or ($options['jwplayer_stretching']=="")){
+                                                        ?><option value="uniform" SELECTED>uniform</option><?
+                                                }else{
+                                                        ?><option value="uniform">uniform</option><?
+                                                }
+						if ($options['jwplayer_stretching']=="none"){
 							?><option value="none" SELECTED>none</option><?
 						}else{
 							?><option value="none">none</option><?
@@ -177,11 +181,6 @@ function hss_options_page () {
                                                         ?><option value="exactfit" SELECTED>exactfit</option><?
                                                 }else{
                                                         ?><option value="exactfit">exactfit</option><?
-                                                }
-						if ($options['jwplayer_stretching']=="uniform"){
-                                                        ?><option value="uniform" SELECTED>uniform</option><?
-                                                }else{
-                                                        ?><option value="uniform">uniform</option><?
                                                 }
 						if ($options['jwplayer_stretching']=="fill"){
                                                         ?><option value="fill" SELECTED>fill</option><?
@@ -829,6 +828,7 @@ function update_videos()
 						$option_price = "";
 						$lowest_price = 0;
 						$option_name = "";
+						_log("purchase_option_count=".$purchase_option_count);
 						if($purchase_option_count > 0)
 						{
 							$purchase_option_details = array();
@@ -858,27 +858,30 @@ function update_videos()
 
 								$prices[$option_id] = array('name' => $option_name,'amount' => $option_price);
 								_log("option id=".$option_id);
-								_log($prices[$option_id]["name"]);
+								_log($prices[$option_id]["name"]." - ".$prices[$option_id]["amount"]);
 						                $option_index+=1;
 						        }
 						}
 
 
-						_log("PostID=".$post_ID);
+						_log("PostID=".$post_ID." - option_index=".$option_index);
 						if($option_index==1){
 							//add no selling options
+							_log("add no selling options");
 							update_post_meta($post_ID, '_variable_pricing','0');
 							delete_post_meta($post_ID, 'edd_price');
 							delete_post_meta($post_ID, '_price_details');
 							delete_post_meta($post_ID, '_edd_ppv_id');
 							update_post_meta($post_ID, '_edd_hide_purchase_link',1);
 						}elseif($option_index==2){
+							_log("add one selling options");
 							delete_post_meta($post_ID, '_edd_hide_purchase_link');
 							update_post_meta($post_ID, '_variable_pricing','0');
 							update_post_meta($post_ID, 'edd_price',$option_price);
 							update_post_meta($post_ID, '_price_details',$option_name);
 							update_post_meta($post_ID, '_edd_ppv_id',$option_id);
 						}else{
+							_log("add multiple selling options");
 							delete_post_meta($post_ID, '_edd_hide_purchase_link');
 							update_post_meta($post_ID, '_variable_pricing','1');
 							update_post_meta($post_ID, 'edd_variable_prices',$prices);
@@ -888,101 +891,6 @@ function update_videos()
 						$index+=1;
 					}
                                 }
-                                $args=array(
-                                        'meta_key'=>'_edd_group_id',
-                                        'meta_value'=> $group_id,
-                                        'post_type' => 'download',
-                                );
-                                _log($args);
-                                $my_query = null;
-                                $my_query = new WP_Query($args);
-                                $post_ID = -1;
-                                if( $my_query->have_posts() ) {
-                                	_log("Video group already a post");
-                                        $video_group_post = $my_query->next_post();
-                                        _log("video_group_post ID=".$video_group_post->ID);
-                                        if($options['disable_desc_updates']==1){
-                                        	$my_post = array(
-                                                   'ID' => $video_group_post->ID,
-                                                   'post_title' => $group_title,
-                                                );
-                                        }else{
-                                                $my_post = array(
-                                                   'ID' => $video_group_post->ID,
-                                                   'post_title' => $group_title,
-                                                   'post_content' => $group_description,
-                                                );
-                                        }
-                                        // Update the post into the database
-                                        $post_ID = wp_update_post( $my_post );
-                                        _log("RESULT FROM UPDATE: ".$post_ID);
-                                }else{
-                                        // Create post object
-                                        _log("Create video group post");
-                                        $my_post = array(
-                                           'post_title' => $group_title,
-                                           'post_content' => $group_description,
-                                           'post_status' => 'publish',
-                                           'post_author' => 1,
-                                           'post_type' => 'download',
-                                        );
-
-                                        // Insert the post into the database
-                                        $post_ID = wp_insert_post( $my_post );
-					$url = $group_thumbnail;
-				    	$tmp = download_url( $url );
-				    	$file_array = array(
-				           'name' => basename( $url ),
-				           'tmp_name' => $tmp
-				        );
-		
-				    	// Check for download errors
-				    	if ( is_wp_error( $tmp ) ) {
-				        	_log($tmp);
-				        	@unlink( $file_array[ 'tmp_name' ] );
-				        	return $tmp;
-				    	}
-	
-				    	$thumb_id = media_handle_sideload( $file_array, 0 );
-				    	// Check for handle sideload errors.
-				    	if ( is_wp_error( $thumb_id ) ) {
-				        	_log($thumb_id);
-				        	@unlink( $file_array['tmp_name'] );
-				        	return $thumb_id;
-				    	}
-
-				    	$attachment_url = wp_get_attachment_url( $thumb_id );
-				        _log("Attachment URL (".$thumb_id."): ".$attachment_url);
-				    	// Do whatever you have to here
-				        set_post_thumbnail( $post_ID, $thumb_id );
-
-                                }
-				/*
-                                $category_found = false;
-                                $terms = array();
-                                if(!in_array($video_id,$seen_videos))
-                                	array_push($seen_videos,$video_id);
-                                else
-                                        $terms = wp_get_object_terms($post_ID,'download_category');
-                                $vid_cats = array();
-                                if(!empty($terms)){
-                                        if(!is_wp_error( $terms )){
-                                        	foreach($terms as $term){
-                                                	array_push($vid_cats,$term->name);
-                                                }
-                                        }
-                                }
-                                _log($vid_cats);
-                                if(!in_array($group_title,$vid_cats)){
-                                	_log("adding term");
-                                        array_push($vid_cats,$group_title);
-                                        _log($vid_cats);
-                                        wp_set_object_terms($post_ID,$vid_cats,'download_category');
-                                }
-                                $term = get_term_by( 'name',$group_title,'download_category');
-                                wp_update_term($term->term_id, 'download_category', array('description' => $group_description));
-				*/
-                                update_post_meta($post_ID, '_edd_group_id', $group_id);
 
 				$prices = array();
                                 $option_index = 1;
@@ -990,6 +898,77 @@ function update_videos()
                                 $option_name = "";
                                 if($purchase_option_count > 0)
                                 {
+	                                $args=array(
+        	                                'meta_key'=>'_edd_group_id',
+                	                        'meta_value'=> $group_id,
+                        	                'post_type' => 'download',
+	                                );
+        	                        _log($args);
+                	                $my_query = null;
+	                                $my_query = new WP_Query($args);
+        	                        $post_ID = -1;
+                	                if( $my_query->have_posts() ) {
+                        	                _log("Video group already a post");
+	                                        $video_group_post = $my_query->next_post();
+        	                                _log("video_group_post ID=".$video_group_post->ID);
+                	                        if($options['disable_desc_updates']==1){
+                        	                        $my_post = array(
+	                                                   'ID' => $video_group_post->ID,
+        	                                           'post_title' => $group_title,
+                	                                );
+	                                        }else{
+        	                                        $my_post = array(
+                	                                   'ID' => $video_group_post->ID,
+                        	                           'post_title' => $group_title,
+                                	                   'post_content' => $group_description,
+	                                                );
+        	                                }
+                	                        // Update the post into the database
+                        	                $post_ID = wp_update_post( $my_post );
+                                	        _log("RESULT FROM UPDATE: ".$post_ID);
+	                                }else{
+        	                                // Create post object
+                	                        _log("Create video group post");
+                        	                $my_post = array(
+                                	           'post_title' => $group_title,
+	                                           'post_content' => $group_description,
+        	                                   'post_status' => 'publish',
+                	                           'post_author' => 1,
+                        	                   'post_type' => 'download',
+	                                        );
+
+        	                                // Insert the post into the database
+                	                        $post_ID = wp_insert_post( $my_post );
+                        	                $url = $group_thumbnail;
+	                                        $tmp = download_url( $url );
+        	                                $file_array = array(
+	                                           'name' => basename( $url ),
+        	                                   'tmp_name' => $tmp
+	                                        );
+        	                                // Check for download errors
+                	                        if ( is_wp_error( $tmp ) ) {
+	                                                _log($tmp);
+	                                                @unlink( $file_array[ 'tmp_name' ] );
+	                                                return $tmp;
+	                                        }
+	
+	                                        $thumb_id = media_handle_sideload( $file_array, 0 );
+	                                        // Check for handle sideload errors.
+	                                        if ( is_wp_error( $thumb_id ) ) {
+	                                                _log($thumb_id);
+	                                                @unlink( $file_array['tmp_name'] );
+	                                                return $thumb_id;
+	                                        }
+	
+	                                        $attachment_url = wp_get_attachment_url( $thumb_id );
+	                                        _log("Attachment URL (".$thumb_id."): ".$attachment_url);
+	                                        // Do whatever you have to here
+	                                        set_post_thumbnail( $post_ID, $thumb_id );
+	
+	                                }
+
+                                	update_post_meta($post_ID, '_edd_group_id', $group_id);
+
 	                                $purchase_option_details = array();
                                         while($option_index <= $purchase_option_count)
         	                        {
@@ -1018,29 +997,30 @@ function update_videos()
                                                 _log($prices[$option_id]["name"]);
                                                 $option_index+=1;
                                         }
-                                }
-                                _log("PostID=".$post_ID);
-				if($option_index==1){
-                                        update_post_meta($post_ID, '_variable_pricing','0');
-                                        delete_post_meta($post_ID, 'edd_price');
-                                        delete_post_meta($post_ID, '_price_details');
-                                        delete_post_meta($post_ID, '_edd_ppv_id');
-                                        update_post_meta($post_ID, '_edd_hide_purchase_link',1);	
-				}
-                                if($option_index==2){
-					delete_post_meta($post_ID, '_edd_hide_purchase_link');
-	                                update_post_meta($post_ID, '_variable_pricing','0');
-                                        update_post_meta($post_ID, 'edd_price',$option_price);
-                                        update_post_meta($post_ID, '_price_details',$option_name);
-                                        update_post_meta($post_ID, '_edd_ppv_id',$option_id);
-                                }else{
-					delete_post_meta($post_ID, '_edd_hide_purchase_link');
-                                        update_post_meta($post_ID, '_variable_pricing','1');
-                                        update_post_meta($post_ID, 'edd_variable_prices',$prices);
-                                }
-                                update_post_meta($post_ID, 'is_streaming_video_bundle',true);
-				update_post_meta($post_ID, '_edd_product_type','bundle');
-				update_post_meta($post_ID, '_edd_bundled_products', $group_video_post_ids);
+                                
+                                	_log("PostID=".$post_ID);
+					if($option_index==1){
+        	                                update_post_meta($post_ID, '_variable_pricing','0');
+                	                        delete_post_meta($post_ID, 'edd_price');
+	                                        delete_post_meta($post_ID, '_price_details');
+	                                        delete_post_meta($post_ID, '_edd_ppv_id');
+	                                        update_post_meta($post_ID, '_edd_hide_purchase_link',1);	
+					}
+	                                if($option_index==2){
+						delete_post_meta($post_ID, '_edd_hide_purchase_link');
+		                                update_post_meta($post_ID, '_variable_pricing','0');
+	                                        update_post_meta($post_ID, 'edd_price',$option_price);
+	                                        update_post_meta($post_ID, '_price_details',$option_name);
+	                                        update_post_meta($post_ID, '_edd_ppv_id',$option_id);
+	                                }else{
+						delete_post_meta($post_ID, '_edd_hide_purchase_link');
+	                                        update_post_meta($post_ID, '_variable_pricing','1');
+	                                        update_post_meta($post_ID, 'edd_variable_prices',$prices);
+	                                }
+	                                update_post_meta($post_ID, 'is_streaming_video_bundle',true);
+					update_post_meta($post_ID, '_edd_product_type','bundle');
+					update_post_meta($post_ID, '_edd_bundled_products', $group_video_post_ids);
+				}			
 
 			}
                         $group_index+=1;

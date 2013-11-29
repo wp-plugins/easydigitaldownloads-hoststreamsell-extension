@@ -368,6 +368,45 @@ function hss_edd_before_download_content($download_id) {
 				_log($params);
 		                $response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
 */
+				if($userId!=0){
+					$hss_errors = get_user_meta( $userId, "hss_errors", true );
+					if (!empty($hss_errors)){
+						_log("there are hss_errors");
+						foreach ($hss_errors as $key => $ppv_option) {
+		        	                        $params = array(
+			                                   'method' => 'secure_videos.add_user_ppv',
+			                                   'api_key' => $options['api_key'],
+			                                   'ppv_id' => $ppv_option,
+			                                   'private_user_id' => $userId
+			                                );
+			                                _log($params);
+			                                $response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
+			                                        'method' => 'POST',
+			                                        'timeout' => 15,
+			                                        'redirection' => 5,
+			                                        'httpversion' => '1.0',
+			                                        'blocking' => true,
+			                                        'headers' => array(),
+			                                        'body' => $params,
+			                                        'cookies' => array()
+			                                    )
+			                                );
+
+	                		                // need to add method to record failed rest requests for retry
+
+			                                if( is_wp_error( $response ) ) {
+			                                        _log("error msg: ".$response->get_error_message()."\n");
+			                                }else if( $response['response']['code'] != "200" ) {
+			                                        _log("request code bad: ".$response['response']['code']."\n");
+			                                }else{
+			                                        _log("request code good: ".$response['response']['code']."\n");
+			                                        unset($hss_errors[$key]);
+			                                        update_user_meta( $userId, "hss_errors", $hss_errors);
+			                                }
+						}
+					}
+				}
+
                                 $response = wp_remote_post( "https://www.hoststreamsell.com/api/1/xml/videos?api_key=".$options['api_key']."&video_id=$hss_video_id&private_user_id=$userId&expands=playback_details&force_allows=no", array(
 		                        'method' => 'GET',
 		                        'timeout' => 15,
@@ -524,10 +563,6 @@ function hss_edd_before_download_content($download_id) {
 			        </script>
 				</div>
 			        </center>";
-                                /*if($user_can_download=="true"){
-                                        $video .= "<BR><div><input type='button' id='$hss_video_id' class='myajaxdownloadlinks' value='Get Download Links'></div>
-                                        <div id='download_links_$hss_video_id'></div>";
-                                }*/
 			        $video .= "<BR>";
 
 			}
@@ -598,17 +633,18 @@ function edd_complete_purchase_add_video($payment_id, $new_status, $old_status) 
         		            )
         		        );
 
-				// need to add method to record failed rest requests for retry
-
 		                if( is_wp_error( $response ) ) {
                 		        _log("error msg: ".$response->get_error_message()."\n");
-		                        #sleep(10);
+					$hss_errors = get_user_meta( $userId, "hss_errors", true );
+					$hss_errors[] = $ppv_option;
+					update_user_meta( $userId, "hss_errors", $hss_errors);
 		                }else if( $response['response']['code'] != "200" ) {
                 		        _log("request code bad: ".$response['response']['code']."\n");
-		                        #sleep(10);
+                                        $hss_errors = get_user_meta( $userId, "hss_errors", true );
+                                        $hss_errors[] = $ppv_option;
+                                        update_user_meta( $userId, "hss_errors", $hss_errors);
 		                }else{
                 		        _log("request code good: ".$response['response']['code']."\n");
-		                        #$request_success = True;
                 		}
                    		$res = $response['body'];
 
@@ -1105,36 +1141,5 @@ function set_download_labels($labels) {
 	return $labels;
 }
 add_filter('edd_download_labels', 'set_download_labels');
-
-/*function pw_edd_product_labels( $labels ) {
-        $labels = array(
-           'singular' => __('Product', 'http://wordpress2.hoststreamsell.com'),
-           'plural' => __('Products', 'http://wordpress2.hoststreamsell.com')
-        );
-        return $labels;
-}
-add_filter('edd_default_downloads_name', 'pw_edd_product_labels');
-
-function set_download_labels($labels) {
-        $labels = array(
-        'name' => _x('Products', 'post type general name', 'http://wordpress2.hoststreamsell.com'),
-        'singular_name' => _x('Product', 'post type singular name', 'http://wordpress2.hoststreamsell.com'),
-        'add_new' => __('Add New', 'http://wordpress2.hoststreamsell.com'),
-        'add_new_item' => __('Add New Product', 'http://wordpress2.hoststreamsell.com'),
-        'edit_item' => __('Edit Product', 'http://wordpress2.hoststreamsell.com'),
-        'new_item' => __('New Product', 'http://wordpress2.hoststreamsell.com'),
-        'all_items' => __('All Products', 'http://wordpress2.hoststreamsell.com'),
-        'view_item' => __('View Product', 'http://wordpress2.hoststreamsell.com'),
-        'search_items' => __('Search Products', 'http://wordpress2.hoststreamsell.com'),
-        'not_found' => __('No Products found', 'http://wordpress2.hoststreamsell.com'),
-        'not_found_in_trash' => __('No Products found in Trash', 'http://wordpress2.hoststreamsell.com'),
-        'parent_item_colon' => '',
-        'menu_name' => __('Products', 'http://wordpress2.hoststreamsell.com')
-        );
-        return $labels;
-}
-add_filter('edd_download_labels', 'set_download_labels');
-
-*/
 
 ?>

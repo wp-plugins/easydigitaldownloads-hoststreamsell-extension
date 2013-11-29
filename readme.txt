@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.4
-Stable tag: 0.94
+Stable tag: 0.95
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -161,3 +161,7 @@ tweaked as needed
 = 0.94 =
 
 *fixed default jwplayer stretching option to be uniform. fixed some logic around creating groups
+
+= 0.95 =
+
+*Added recording of failed rest calls after purchase of a video which can be retried later

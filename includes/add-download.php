@@ -8,7 +8,7 @@ function hss_add_defaults() {
         $tmp = get_option('hss_options');
     if(($tmp['chk_default_options_db']=='1')||(!is_array($tmp))) {
                 delete_option('hss_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
-                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform" );
+                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform","logging" => "NORMAL" );
                 update_option('hss_options', $arr);
         }
 }
@@ -191,6 +191,24 @@ function hss_options_page () {
 
                                         </td>
                                 </tr>
+				<tr>
+                                        <th scope="row">Logging Level - <i>Logs to <BR>wp-content/uploads/hss_edd/log.txt <? echo $options['logging'];?></i></th>
+                                        <td>
+                                                <select name="hss_options[logging]">
+						<?
+                                                if (($options['logging']=="NORMAL") or ($options['logging']=="")){
+                                                        ?><option value="NORMAL" SELECTED>Normal</option><?
+                                                }else{
+                                                        ?><option value="NORMAL">Normal</option><?
+                                                }
+                                                if ($options['logging']=="DEBUG"){
+                                                        ?><option value="DEBUG" SELECTED>Debug</option><?
+                                                }else{
+                                                        ?><option value="DEBUG">Debug</option><?
+                                                }?>
+						</select>
+                                        </td>
+                                </tr>
                                 <tr>
                                         <th scope="row">Disable updating video descriptions</th>
                                         <td>
@@ -307,20 +325,15 @@ function edd_download_meta_box_save_stream($post_id) {
 	                'is_streaming_video_bundle'
                 
         );
-	_log("***");
-	_log($fields);
         foreach($fields as $field) {
                 if(isset($_POST[$field])) {
-			_log("new=".$field);
                         $old = get_post_meta($post_id, $field, true);
-			_log("old=".$old);
                         if($old != $_POST[$field]) {
                                 if( is_string( $_POST[$field] ) ) {
                                         $new = esc_attr( $_POST[$field] );
                                 } else {
                                         $new = $_POST[$field];
                                 }
-				_log("update new=".$new);
                                 update_post_meta($post_id, $field, $new);
                         }
                 } else {
@@ -426,7 +439,8 @@ function hss_edd_before_download_content($download_id) {
 		                }
 		
 		                $xml = new SimpleXMLElement($res);
-				_log($xml);
+				if($options['logging']=="DEBUG")
+					_log($xml);
 		                $title = $xml->result->title;
 		                $hss_video_title = $title;
 		                $user_has_access = $xml->result->user_has_access;
@@ -484,7 +498,10 @@ function hss_edd_before_download_content($download_id) {
         	                        if($options['player_height_default']!="")
                 	                        $video_height=$options['player_height_default'];
 				}
-
+                                $httpString = "http";
+                                if (is_ssl()) {
+                                        $httpString = "https";
+                                }
 		                $video = $video."
 		                <script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
 				<script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
@@ -524,7 +541,7 @@ function hss_edd_before_download_content($download_id) {
 					    playlist: [{
 					        image: '$hss_video_big_thumb_url',
 				        	sources: [{
-					            file: 'https://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
+					            file: '$httpString://www.hoststreamsell.com/mod/secure_videos/private_media_playlist_v2.php?params=".$hss_video_id."!".urlencode($referrer)."!".$hss_video_user_token."!',
 					            type: 'rtmp'
 					        },{
 				        	    file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'

@@ -4,8 +4,8 @@ Plugin URI: http://wordpress2.hoststreamsell.com
 Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
-Tested up to: 3.4
-Stable tag: 0.95
+Tested up to: 3.8
+Stable tag: 0.96
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,3 +165,7 @@ tweaked as needed
 = 0.95 =
 
 *Added recording of failed rest calls after purchase of a video which can be retried later
+
+= 0.96 =
+
+*Added automatic log file generation in wp-content/uploads/hss_edd/log.txt and the ability to set the log level*

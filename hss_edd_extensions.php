@@ -6,7 +6,7 @@ Description: Sell Streaming Video Through WordPress (extends functionality in Ea
 Author: Gavin Byrne
 Author URI: http://hoststreamsell.com
 Contributors: 
-Version: 0.7
+Version: 0.97
 
 Easy Digital Downloads HSS Extension for Streaming Video is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -82,9 +82,18 @@ global $edd_options;
 
 include_once(EDD_HSS_PLUGIN_DIR . 'includes/add-download.php');
 
-
 if(!function_exists('_log')){
   function _log( $message ) {
+        $upload_dir = wp_upload_dir();
+        if (!file_exists($upload_dir['basedir'].'/hss_edd')) {
+            mkdir($upload_dir['basedir'].'/hss_edd', 0777, true);
+        }
+        $fh = fopen($upload_dir['basedir'].'/hss_edd/log.txt', 'a');
+        if( is_array( $message ) || is_object( $message ) ){
+                fwrite($fh, print_r( $message, true ) );
+        }else{
+                fwrite($fh, $message."\n");
+        }
     if( WP_DEBUG === true ){
       if( is_array( $message ) || is_object( $message ) ){
         error_log( print_r( $message, true ) );

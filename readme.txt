@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 0.96
+Stable tag: 0.97
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,7 +47,7 @@ be able to see all videos purchased and download a capy.
 Add the following to your template functions.php file to add some extra
 information on the video page.
 
-function hss_edd_append_purchase_info_and_links( $download_id ) {
+`function hss_edd_append_purchase_info_and_links( $download_id ) {
         global $post;
         $video = "";
         if($post->post_type == 'download' && is_singular() && is_main_query())
@@ -76,7 +76,7 @@ function hss_edd_append_purchase_info_and_links( $download_id ) {
                                                         $video =$video."<div><br>This video can be purchased in the following series:</div>";
                                                         $groups_found=true;
                                                 }
-                                                $video = $video."<div><ahref='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
+                                                $video = $video."<div><a href='".get_permalink($video_group_post)."'>".$video_group_post->post_title."</a></div>";
                                         }
                                 }
                                 if((!get_post_meta($post->ID,'_edd_hide_purchase_link', true)) and ($groups_found==true))
@@ -98,16 +98,57 @@ function hss_edd_append_purchase_info_and_links( $download_id ) {
                 $count = sizeof($bundled_videos);
                 for($counter=0;$counter<$count;$counter++){
                         $vidpost = get_post($bundled_videos[$counter]);
-                        $video = $video."<div>- <ahref='".get_permalink($bundled_videos[$counter])."'>".$vidpost->post_title."</a></div>";
+                        $video = $video."<div>- <a href='".get_permalink($bundled_videos[$counter])."'>".$vidpost->post_title."</a></div>";
                 }
                 $video = $video."<div><BR></div>";
         }
 
         echo $video;
 }
-add_action( 'hss_edd_show_video_purchase_details','hss_edd_append_purchase_info_and_links' ,5);
+add_action( 'hss_edd_show_video_purchase_details','hss_edd_append_purchase_info_and_links' ,5);`
 
+To create a custom receipt which provides links to the videos purchased, use the following code in your functions.php file, and the EasyDigitalDownloads receipt template
 
+`function custom_edd_email_tags($message, $payment_data) {
+                $downloads = maybe_unserialize($payment_data['downloads']);
+
+                $links = "<ul>";
+                foreach($downloads as $download) {
+
+                        if((get_post_meta($download['id'],'is_streaming_video', true)) or (get_post_meta($download['id'],'is_streaming_video_bundle', true))) {
+                               $links .= "<li><a href=\"".get_permalink($download['id'])."\">".get_the_title($download['id'])."</a></li>";
+
+                                if(get_post_meta($download['id'],'is_streaming_video_bundle', true)){
+                                        $bundled_videos = get_post_meta($download['id'], '_edd_bundled_products', true);
+                                        $count = sizeof($bundled_videos);
+                                        for($counter=0;$counter<$count;$counter++){
+                                                $links .= "<li>- <a href='".get_permalink($bundled_videos[$counter])."'>".get_the_title($bundled_videos[$counter])."</a></li>";
+                                        }
+                                }
+                        }
+                }
+                $links .= "</ul>";
+
+        $message = str_replace('{list_video_pages}', $links, $message);
+        return $message;
+}
+add_filter('edd_email_template_tags', 'custom_edd_email_tags', 10, 2);`
+
+`Hi {name},
+
+Thank you for your recent purchase.
+
+You can access your videos with the following link(s):
+
+Note: you need to be logged in to view the full videos
+
+{list_video_pages} 
+
+Price: {price}
+
+Receipt ID: {receipt_id}
+
+Date: {date}`
 
 == Frequently Asked Questions ==
 
@@ -169,3 +210,7 @@ tweaked as needed
 = 0.96 =
 
 *Added automatic log file generation in wp-content/uploads/hss_edd/log.txt and the ability to set the log level*
+
+= 0.97 =
+
+*Fixed a typo in the readme file which shows an example of the function hss_edd_append_purchase_info_and_links. Added code to add links to videos in the receipt*

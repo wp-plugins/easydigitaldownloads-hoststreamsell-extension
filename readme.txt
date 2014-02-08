@@ -35,6 +35,8 @@ More information at [HostStreamSell.com](http://hoststreamsell.com/).
 account
 3. Click the Update key to Pull video information from HostStreamSell platform
 and insert into the system automatically (also to update)
+4. Go to Videos > Settings and then select the Misc tab at the top of the
+page. Check the box for 'Disable Guest Checkout' and press Save Changes
 
 
 See https://easydigitaldownloads.com/themes/ for some pre built options for themes specifically designed to work with Easy DigitalDownloads.

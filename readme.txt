@@ -25,12 +25,13 @@ Features of the plugin include:
 * Sell a group of videos as a single purchasable item
 * Have multiple selling options for a video or group of videos
 
-This plugin requires your customer to register on your website, as their WordPress user ID in your database will be used in our system for adding (and later verifying) access to a video. this requires that they log in every time they come back to your website and want to stream or download their purchased videos. A sample history-downloads.php template file is included with this plugin to allow you easily create a page showing a users purchased videos, links to the videos, and download links (if you have allowed download access). See https://easydigitaldownloads.com/docs/customizing-the-download-history-template/ for more details on using this template.
+This plugin requires your customer to register on your website, as their WordPress user ID in your database will be used in our system for adding (and later verifying) access to a video. This requires that they log in every time they come back to your website and want to stream or download their purchased videos. A sample history-downloads.php template file is included with this plugin to allow you easily create a page showing a users purchased videos, links to the videos, and download links (if you have allowed download access). See [EasyDigitalDownloads.com](https://easydigitaldownloads.com/docs/customizing-the-download-history-template/) for more details on using this template.
 
 Please read Installation instructions!
 
 More information at [HostStreamSell.com](http://hoststreamsell.com/).
 
+Demo at [edd_demo.hoststreamsell.com](http://edd_demo.hoststreamsell.com/).
 
 == Installation ==
 

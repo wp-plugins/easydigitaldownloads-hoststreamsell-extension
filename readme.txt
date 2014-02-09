@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 0.97
+Stable tag: 0.98
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,12 +18,16 @@ Sell access to streaming videos with total control over how long you want to
 give access for, whether you want to allow downloads or be stream only, and
 whether you want to limit the amount of usage in terms of a bandwidth usage cap.
 
-
-**Follow this plugin on [GitHub](https://github.com/hoststreamsell/easydigitaldownloads_hoststreamsell_ext)**
-
 Features of the plugin include:
 
 * Extend the flexibility of the EasyDigitalDownloads plugin to sell access to videos hosted on the HostStreamSell platform
+* Sell a single video as a single item
+* Sell a group of videos as a single purchasable item
+* Have multiple selling options for a video or group of videos
+
+This plugin requires your customer to register on your website, as their WordPress user ID in your database will be used in our system for adding (and later verifying) access to a video. this requires that they log in every time they come back to your website and want to stream or download their purchased videos. A sample history-downloads.php template file is included with this plugin to allow you easily create a page showing a users purchased videos, links to the videos, and download links (if you have allowed download access). See https://easydigitaldownloads.com/docs/customizing-the-download-history-template/ for more details on using this template.
+
+Please read Installation instructions!
 
 More information at [HostStreamSell.com](http://hoststreamsell.com/).
 
@@ -43,11 +47,9 @@ See https://easydigitaldownloads.com/themes/ for some pre built options for them
 https://easydigitaldownloads.com/themes/edd-starter-theme/ is a nice free
 theme which is a good starting point.
 
-Create a page with the [download_history] shortcode if you want customers to
-be able to see all videos purchased and download a capy.
+Create a page with the [download_history] shortcode if you want customers to be able to see all videos purchased and download a copy. You will place the history-downloads.php template file provided in a directory called edd_templates in your theme directory (rename from history-downloads.php.txt to history-downloads.php).
 
-Add the following to your template functions.php file to add some extra
-information on the video page.
+Add the following to your template functions.php file to add some extra information on the video page. Feel free to customize this to your needs - that is why it is outside of the main plugin :)
 
 `function hss_edd_append_purchase_info_and_links( $download_id ) {
         global $post;
@@ -216,3 +218,7 @@ tweaked as needed
 = 0.97 =
 
 *Fixed a typo in the readme file which shows an example of the function hss_edd_append_purchase_info_and_links. Added code to add links to videos in the receipt*
+
+= 0.98 =
+
+*Updates to the readme file for installation instructions

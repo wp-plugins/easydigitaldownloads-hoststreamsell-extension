@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 0.98
+Stable tag: 0.99
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -223,3 +223,7 @@ tweaked as needed
 = 0.98 =
 
 *Updates to the readme file for installation instructions
+
+= 0.99 =
+
+* added meta key to each video post which can be used for ordering the posts when viewing a category

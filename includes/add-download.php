@@ -729,7 +729,6 @@ function update_videos()
                                 $group_description = (string)$group_xml->result[0]->{'video_group'.$group_index}[0]->description[0];
 				$group_thumbnail = (string)$group_xml->result[0]->{'video_group'.$group_index}[0]->thumbnail[0];
 				_log("Group id=".$group_id);
-				_log(get_cat_ID( $group_title ));
 				if( !term_exists( $group_title,'download_category' )){
 				 	_log("Creating category ".$group_title);   	
 					wp_insert_term(
@@ -737,6 +736,8 @@ function update_videos()
 					  'download_category' // the taxonomy
 					);
 				}
+				$category_term = get_term_by('name', $group_title, 'download_category');
+				_log($category_term->term_id);
 				$params = array(
 			          'method' => 'secure_videos.get_user_video_list_by_group_with_purchase_options',
 			          'api_key' => $options['api_key'],
@@ -940,7 +941,8 @@ function update_videos()
 							update_post_meta($post_ID, 'edd_variable_prices',$prices);
 						}
 						update_post_meta($post_ID, 'is_streaming_video',true);
-							
+						$meta_label = 'group_order_'.$category_term->term_id;
+						update_post_meta($post_ID, $meta_label,$group_video_post_index);
 						$index+=1;
 					}
                                 }

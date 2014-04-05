@@ -1,41 +1,70 @@
 <?
 
-register_activation_hook(__FILE__, 'hss_add_defaults');
-register_uninstall_hook(__FILE__, 'hss_delete_plugin_options');
-add_action('admin_init', 'hss_init' );
+register_activation_hook(__FILE__, 'hss_edd_add_defaults');
+register_uninstall_hook(__FILE__, 'hss_edd_delete_plugin_options');
+add_action('admin_init', 'hss_edd_init' );
 
-function hss_add_defaults() {
+function hss_edd_add_defaults() {
         $tmp = get_option('hss_options');
     if(($tmp['chk_default_options_db']=='1')||(!is_array($tmp))) {
                 delete_option('hss_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
-                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform","logging" => "NORMAL" );
+                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform","logging" => "NORMAL", "database_id" => "0" );
                 update_option('hss_options', $arr);
         }
 }
 
-function hss_delete_plugin_options() {
+function hss_edd_delete_plugin_options() {
         delete_option('hss_options');
 }
 
-function hss_init(){
-        register_setting( 'hss_plugin_options', 'hss_options', 'hss_validate_options' );
+// Register style sheet.
+add_action( 'wp_enqueue_scripts', 'register_plugin_styles' );
+
+/**
+ * Register style sheet.
+ */
+function register_plugin_styles() {
+	wp_register_style( 'easydigitaldownloads-hoststreamsell-extension', plugins_url( 'easydigitaldownloads-hoststreamsell-extension/css/hss-edd.css' ) );
+	wp_enqueue_style( 'easydigitaldownloads-hoststreamsell-extension' );
 }
 
-function hss_validate_options($input) {
+function hss_edd_init(){
+        register_setting( 'hss_edd_plugin_options', 'hss_options', 'hss_edd_validate_options' );
+	$options = get_option('hss_options');
+	if (array_key_exists('database_id', $options)) {	
+		if($options['database_id'] == ""){
+			$options['database_id'] = "0";
+			update_option('hss_options', $options);
+		}
+	}else{
+		$options['database_id'] = "0";
+		update_option('hss_options', $options);
+	}
+        if (array_key_exists('watching_video_text', $options)==false) {
+                $options['watching_video_text'] = "You have access to this video";
+                update_option('hss_options', $options);
+        }
+}
+
+function hss_edd_validate_options($input) {
          // strip html from textboxes
         $input['api_key'] =  wp_filter_nohtml_kses($input['api_key']); // Sanitize textarea input (strip html tags, and escape characters)
+	
+	if (!is_numeric($input['database_id'])) {
+		$input['database_id'] = "0";
+	}
         return $input;
 }
 
-add_action('admin_head', 'my_action_javascript');
+add_action('admin_head', 'hss_edd_action_javascript');
 
-function my_action_javascript() {
+function hss_edd_action_javascript() {
 ?>
 <script type="text/javascript" >
 jQuery(document).ready(function($) {
-    $('#myajax').click(function(){
+    $('#hss_edd_ajax').click(function(){
         var data = {
-            action: 'my_action'
+            action: 'hss_edd_action'
         };
 	$("#updateprogress").html("Updating... please wait!");
 
@@ -51,10 +80,10 @@ jQuery(document).ready(function($) {
 <?php
 }
 
-add_action('wp_ajax_my_action', 'my_action_callback');
+add_action('wp_ajax_hss_edd_action', 'hss_edd_action_callback');
 
-function my_action_callback() {
-	$res = update_videos();
+function hss_edd_action_callback() {
+	$res = hss_edd_update_videos();
 	if($res==True)
 		echo "Success";
 	else
@@ -67,8 +96,8 @@ function my_action_callback() {
 
 
 
-add_action('wp_head','pluginname_ajaxurl');
-function pluginname_ajaxurl() {
+add_action('wp_head','hss_edd_ajaxurl');
+function hss_edd_ajaxurl() {
 ?>
 <script type="text/javascript">
 var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
@@ -80,7 +109,7 @@ add_action('wp_ajax_get_download_links', 'get_download_links_callback');
 function get_download_links_callback() {
  $purchase_id = $_POST['purchase_id'];
  $video_id = get_post_meta($purchase_id, '_edd_video_id', true);
- echo get_video_download_links($video_id);
+ echo hss_edd_get_video_download_links($video_id);
 
  die(); // this is required to return a proper result
 }
@@ -119,7 +148,7 @@ jQuery(document).ready(function($) {
 
 
 
-function hss_options_page () {
+function hss_edd_options_page () {
 ?>
         <div class="wrap">
 
@@ -130,7 +159,7 @@ function hss_options_page () {
 
                 <!-- Beginning of the Plugin Options Form -->
                 <form method="post" action="options.php">
-                        <?php settings_fields('hss_plugin_options'); ?>
+                        <?php settings_fields('hss_edd_plugin_options'); ?>
                         <?php $options = get_option('hss_options'); ?>
 
                         <!-- Table Structure Containing Form Controls -->
@@ -142,6 +171,12 @@ function hss_options_page () {
                                         <th scope="row">HostStreamSell API Key<BR><i>(available from your account on www.hoststreamsell.com)</i></th>
                                         <td>
                                                 <input type="text" size="40" name="hss_options[api_key]" value="<?php echo $options['api_key']; ?>" />
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <th scope="row">Website Reference ID<BR><i>(leave at 0 unless you sell the same videos from multiple WordPress websites, in which case each website needs a unique reference ID)</i></th>
+                                        <td>
+                                                <input type="text" size="40" name="hss_options[database_id]" value="<?php echo $options['database_id']; ?>" />
                                         </td>
                                 </tr>
                                 <tr>
@@ -214,11 +249,23 @@ function hss_options_page () {
                                         <td>
                                                 <input type="checkbox" name="hss_options[disable_desc_updates]" value="1"<?php checked( 1 == $options['disable_desc_updates']); ?> />
                                         </td>
-                                </tr>				
+                                </tr>		
+                                <tr>
+                                        <th scope="row">Watching Trailer Text (leave blank for no message)</th>
+                                        <td>
+                                                <input type="text" size="50" name="hss_options[watching_trailer_text]" value="<?php echo $options['watching_trailer_text']; ?>" />
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <th scope="row">Watching Full Video Text (leave blank for no message)</th>
+                                        <td>
+                                                <input type="text" size="50" name="hss_options[watching_video_text]" value="<?php echo $options['watching_video_text']; ?>" />
+                                        </td>
+                                </tr>		
 				<tr>
 				        <th scope="row">Add/Update Videos</th>
 				        <td>
-						<div><input type="button" value="Update" id="myajax" /></div>
+						<div><input type="button" value="Update" id="hss_edd_ajax" /></div>
                                         <div id="updateprogress"></div></td>
                                 </tr>
                         </table>
@@ -231,7 +278,7 @@ function hss_options_page () {
 }
 
 function hss_menu () {
-        add_options_page('HostStreamSell Admin','HSS Admin','manage_options','hss_admin', 'hss_options_page');
+        add_options_page('HostStreamSell Admin','HSS Admin','manage_options','hss_admin', 'hss_edd_options_page');
 }
 
 add_action('admin_menu','hss_menu');
@@ -239,7 +286,7 @@ add_action('admin_menu','hss_menu');
 
 
 
-function is_stream($post_id) {
+function hss_edd_is_stream($post_id) {
         global $edd_options;
 ?>
         <p>
@@ -295,7 +342,7 @@ function is_stream($post_id) {
 	//echo '</td></tr>';
 }
 remove_action('edd_meta_box_fields', 'edd_render_price_field', 10);
-add_action('edd_meta_box_fields', 'is_stream', 20);
+add_action('edd_meta_box_fields', 'hss_edd_is_stream', 20);
 
 
 function edd_download_meta_box_save_stream($post_id) {
@@ -361,36 +408,18 @@ function hss_edd_before_download_content($download_id) {
 				//	$video = "<center>You have access to this video</center>";
 		
 				$hss_video_id = get_post_meta($post->ID, '_edd_video_id', true);
-                                /*$params = array(
-                                   #'method' => 'secure_videos.get_video_playback_details',
-                                   'api_key' => $options['api_key'],
-                                   'video_id' => $hss_video_id,
-                                   'private_user_id' => $userId,
-                                   'expands' => 'playback_details',
-                                   'force_allow' => 'yes'
-                                );
-                                _log($params);*/
-                                #$response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
-
-/*		                $params = array(
-		                   'method' => 'secure_videos.get_video_playback_details',
-		                   'api_key' => $options['api_key'],
-		                   'video_id' => $hss_video_id,
-		                   'private_user_id' => $userId
-		                );
-				_log($params);
-		                $response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
-*/
 				if($userId!=0){
 					$hss_errors = get_user_meta( $userId, "hss_errors", true );
 					if (!empty($hss_errors)){
 						_log("there are hss_errors");
+						_log($hss_errors);
 						foreach ($hss_errors as $key => $ppv_option) {
 		        	                        $params = array(
 			                                   'method' => 'secure_videos.add_user_ppv',
 			                                   'api_key' => $options['api_key'],
 			                                   'ppv_id' => $ppv_option,
-			                                   'private_user_id' => $userId
+			                                   'private_user_id' => $userId,
+							   'database_id' => $options['database_id']
 			                                );
 			                                _log($params);
 			                                $response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
@@ -412,15 +441,16 @@ function hss_edd_before_download_content($download_id) {
 			                                }else if( $response['response']['code'] != "200" ) {
 			                                        _log("request code bad: ".$response['response']['code']."\n");
 			                                }else{
-			                                        _log("request code good: ".$response['response']['code']."\n");
+			                                        _log("request code good: ".$key."=>".$ppv_option." ".$response['response']['code']."\n");
 			                                        unset($hss_errors[$key]);
 			                                        update_user_meta( $userId, "hss_errors", $hss_errors);
+								$hss_errors_new = get_user_meta( $userId, "hss_errors", true );
+								_log($hss_errors_new);
 			                                }
 						}
 					}
 				}
-
-                                $response = wp_remote_post( "https://www.hoststreamsell.com/api/1/xml/videos?api_key=".$options['api_key']."&video_id=$hss_video_id&private_user_id=$userId&expands=playback_details&force_allows=no", array(
+                                $response = wp_remote_post( "https://www.hoststreamsell.com/api/1/xml/videos?api_key=".$options['api_key']."&video_id=$hss_video_id&private_user_id=$userId&database_id=".$options['database_id']."&expands=playback_details&force_allows=no", array(
 		                        'method' => 'GET',
 		                        'timeout' => 15,
 		                        'redirection' => 5,
@@ -446,9 +476,10 @@ function hss_edd_before_download_content($download_id) {
 		                $user_has_access = $xml->result->user_has_access;
 				$user_can_download = $xml->result->user_can_download;
 				//$video = "".$user_has_access;
-				if($user_has_access=="true")
-					$video = "<center>You have access to this video</center>";
-
+                                if($user_has_access=="true")
+                                        $video .= '<div class="hss_watching_video_text">'.$options['watching_video_text'].'</div>';
+                                else
+                                        $video .= '<div class="hss_watching_trailer_text">'.$options['watching_trailer_text'].'</div>';
 		                $description = $xml->result->description;
 		                $feature_duration = $xml->result->feature_duration;
 		                $trailer_duration = $xml->result->trailer_duration;
@@ -599,13 +630,11 @@ function hss_edd_after_download_content($download_id) {
 }
 add_action( 'edd_after_download_content', 'hss_edd_after_download_content', 5 );
 
-function edd_complete_purchase_add_video($payment_id, $new_status, $old_status) {
+function hss_edd_complete_purchase_add_video($payment_id, $new_status, $old_status) {
 
         if( $old_status == 'publish' || $old_status == 'complete')
                 return; // make sure that payments are only completed once
 
-        if( ! edd_is_test_mode() ) {
-                           
                 $payment_data   = get_post_meta($payment_id, '_edd_payment_meta', true);
                 $downloads              = maybe_unserialize($payment_data['downloads']);
                 $user_info              = maybe_unserialize($payment_data['user_info']);
@@ -635,7 +664,8 @@ function edd_complete_purchase_add_video($payment_id, $new_status, $old_status) 
 			           'method' => 'secure_videos.add_user_ppv',
 			           'api_key' => $options['api_key'],
 			           'ppv_id' => $ppv_option,
-			           'private_user_id' => $userId
+			           'private_user_id' => $userId,
+				   'database_id' => $options['database_id']
 			        );
                			_log($params); 
 				$response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
@@ -669,15 +699,14 @@ function edd_complete_purchase_add_video($payment_id, $new_status, $old_status) 
                 		_log($xml);
 			}
                 }
-        }
 
         // empty the shopping cart
         edd_empty_cart();
 }
-add_action('edd_update_payment_status', 'edd_complete_purchase_add_video', 10, 3);
+add_action('edd_update_payment_status', 'hss_edd_complete_purchase_add_video', 10, 3);
 
 
-function update_videos()
+function hss_edd_update_videos()
 {
 	#global $post;
 	$options = get_option('hss_options');
@@ -700,7 +729,8 @@ function update_videos()
         );
         $group_res = "";
         if( is_wp_error( $group_response ) ) {
-   	   _log("ERROR");
+   	   _log("ERROR: ".$group_response->get_error_message());
+	   return $group_response->get_error_message();
         } else {
            $group_res = $group_response['body'];
         }
@@ -1084,7 +1114,7 @@ function update_videos()
 	return True;
 }
 
-function get_video_download_links($hss_video_id) {
+function hss_edd_get_video_download_links($hss_video_id) {
 
         global $user_ID;
         $options = get_option('hss_options');
@@ -1095,7 +1125,8 @@ function get_video_download_links($hss_video_id) {
                    'method' => 'secure_videos.get_all_video_download_links',
                    'api_key' => $options['api_key'],
                    'video_id' => $hss_video_id,
-                   'private_user_id' => $userId
+                   'private_user_id' => $userId,
+		   'database_id' => $options['database_id']
                 );
                 _log($params);
                 $response = wp_remote_post( "https://www.hoststreamsell.com/services/api/rest/xml/", array(
@@ -1141,7 +1172,7 @@ function get_video_download_links($hss_video_id) {
 }
 
 
-function set_download_labels($labels) {
+function hss_edd_set_download_labels($labels) {
 	$labels = array(
 	'name' => _x('Videos', 'post type general name', 'edd'),
 	'singular_name' => _x('Video', 'post type singular name', 'edd'),
@@ -1159,6 +1190,6 @@ function set_download_labels($labels) {
 	);
 	return $labels;
 }
-add_filter('edd_download_labels', 'set_download_labels');
+add_filter('edd_download_labels', 'hss_edd_set_download_labels');
 
 ?>

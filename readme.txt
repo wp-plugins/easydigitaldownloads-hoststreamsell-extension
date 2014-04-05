@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 0.99
+Stable tag: 1.01
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -161,6 +161,16 @@ Date: {date}`
 
 No this only works with the HostStreamSell video platform
 
+= How do I style the text which appears above the video player to say whether
+it is the trailer or full video?
+
+Add the following to your theme's style.css to for example make the text centered, and the text red for the trailer and green for the full video:
+
+.hss_watching_trailer_text { text-align:center; color:red; }
+.hss_watching_video_text { text-align:center; color:green; }
+
+You can set what the text says (or whether to show any text at all through the plugin's settings)
+
 == Screenshots ==
 
 
@@ -227,3 +237,10 @@ tweaked as needed
 = 0.99 =
 
 * added meta key to each video post which can be used for ordering the posts when viewing a category
+
+= 1.00 =
+
+* added support to set a Website Reference ID. The default for this will be 0 (zero), and should only be changed in the event that you want multiple WordPress websites selling the same videos. You set a different ID for each website, which is used to distinguish for example a customer with WordPress user ID of 5 on one website, with a totally different user on another website with the same user ID of 5
+
+= 1.01 =
+*Added ability to configure text above video when showing trailer or full video through a plugin setting

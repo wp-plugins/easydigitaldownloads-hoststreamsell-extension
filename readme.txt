@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 1.01
+Stable tag: 1.02
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -171,6 +171,10 @@ Add the following to your theme's style.css to for example make the text centere
 
 You can set what the text says (or whether to show any text at all through the plugin's settings)
 
+= How do I manually add video access for a user? =
+
+In your WordPress dashboard, go to your list of users. Mouse over a user in the list and you will see a new Add Video Access link to the right of the Edit and Delete links. This will bring you to another page where you choose the video access you want to add for this user and press the Add Video Access button. Note that a new payment entry will be added for this user which shows $0.00, and the user will be sent an email just as if they had purchased the video.
+
 == Screenshots ==
 
 
@@ -244,3 +248,6 @@ tweaked as needed
 
 = 1.01 =
 *Added ability to configure text above video when showing trailer or full video through a plugin setting
+
+= 1.02 =
+*Added ability to manually add video access for a registered user on your wordpress website

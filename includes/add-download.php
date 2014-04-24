@@ -149,7 +149,181 @@ jQuery(document).ready(function($) {
 
 
 function hss_edd_options_page () {
+
+	if(isset($_POST['hss_edd_action']) && wp_verify_nonce($_GET['_wpnonce'], 'update_hss_edd_videos')) {
+		?>
+	        <div class="wrap">
+		<div class="icon32" id="icon-options-general"><br></div>
+	        <H2>Add Video Access</H2>
+		<?php
+
+		global $post;
+		//echo (int)$_POST['video_ppv'];
+		$args = array(
+		  'post_type'   => 'download',
+		  'meta_query'  => array(
+		    array(
+		      'key' => '_edd_ppv_id',
+		      'value' => (int)$_POST['video_ppv']
+		    )
+		  )
+		);
+		$my_query = new WP_Query( $args );
+
+		$wp_user_info = get_userdata((int)$_POST['hss_edd_user_id']);
+	
+	        $user_info = array(
+	                'id'         => $wp_user_info->ID,
+	                'email'      => $wp_user_info->user_email,
+	                'first_name' => $wp_user_info->user_firstname,
+	                'last_name'  => $wp_user_info->user_lastname,
+	                'address'    => $wp_user_info->address
+	        );
+	
+		if( $my_query->have_posts() ) {
+			$my_query->the_post();
+
+                        $details[ $key ]  = array(
+	                        'name'        => the_title("","",FALSE),
+                                'id'          => $post->ID,
+                                'item_number' => $item,
+                                'price'       => "0.00",
+                                'quantity'    => 1,
+                                'tax'         => 0,
+                        );
+
+                       $download = array(
+                                'id' => $post->ID,
+                                'options' => array('price_id' => (int)$_POST['video_ppv'])
+                       );
+                       $purchase_data = array(
+             	                'downloads' => array( $download ),
+                                'price' => "0",
+                                'purchase_key' => md5(uniqid(rand(), true)),
+                                'user_email' => $wp_user_info->user_email,
+                                'date' => date('Y-m-d H:i:s'),
+                                'user_id' => (int)$_POST['hss_edd_user_id'],
+                                //'post_data' => $_POST,
+                                'user_info' => $user_info,
+                                'cart_details' => $details,
+                       );
+                       // Record the pending payment
+                       $payment = edd_insert_payment( $purchase_data );
+
+                       if ( $payment ){
+               	       		edd_update_payment_status( $payment, 'publish' );
+                                ?>
+                                <p>Successfully added video access!</p>
+                       <?php
+                       }
+
+		}else{
+			$args = array(
+			  'post_type'   => 'download',
+			  'meta_query'  => array(
+			    array(
+			      'key' => '_variable_pricing',
+			      'value' => 1
+			    )
+			  )
+			);
+			$my_query = new WP_Query( $args );
+			if( $my_query->have_posts() ) {
+				while ($my_query->have_posts()) : $my_query->the_post();
+					$prices = get_post_meta($post->ID, 'edd_variable_prices', true);
+					foreach($prices as $key => $value) {
+						if($key == (int)$_POST['video_ppv']){
+							$details[ $key ]  = array(
+					                        'name'        => get_the_title( $post->ID ),
+					                        'id'          => $post->ID,
+					                        'item_number' => $item,
+					                        'price'       => "0.00",
+					                        'quantity'    => 1,
+					                        'tax'         => 0,
+					                );
+
+							//echo "TEST " . the_title("","",FALSE) . " " . $key;
+							$download = array(
+								'id' => $post->ID,
+								'options' => array('price_id' => (int)$_POST['video_ppv'])
+							);
+				                        $purchase_data = array(
+				                                'downloads' => array( $download ),
+				                                'price' => "0",
+				                                'purchase_key' =>  md5(uniqid(rand(), true)),
+				                                'user_email' => $wp_user_info->user_email,
+	                        			        'date' => date('Y-m-d H:i:s'),
+				                                'user_id' => (int)$_POST['hss_edd_user_id'],
+				                                //'post_data' => $_POST,
+				                                'user_info' => $user_info,
+				                                'cart_details' => $details,
+				                        );
+					        	// Record the pending payment
+						        $payment = edd_insert_payment( $purchase_data );
+
+						        if ( $payment ){ 
+						                edd_update_payment_status( $payment, 'publish' );
+								?>
+								<p>Successfully added video access!</p>
+								<?php
+							}
+						}
+					}
+				endwhile;
+			}
+		}
+		?>
+		</div>
+		<?php
+        }elseif(isset($_GET['update_user_videos']) && wp_verify_nonce($_GET['_wpnonce'], 'update_hss_edd_videos')) {
+		global $post;
 ?>
+        <div class="wrap">
+	<div class="icon32" id="icon-options-general"><br></div>
+	<H2>Add Video Access</H2>
+	<BR>
+	<form id="hss-edd-user-video-update" action="" method="POST">
+	<select name="video_ppv">
+	<?php  $loop = new WP_Query( array( 'post_type' => 'download', 'posts_per_page' => -1 ) ); ?>
+<?php while ( $loop->have_posts() ) : $loop->the_post();
+	$post_id = $post->ID;
+	if((get_post_meta($post_id, '_variable_pricing',true))==0 and (get_post_meta($post_id, '_edd_hide_purchase_link',true))==0)
+        {
+		$ppv_id = get_post_meta($post_id, '_edd_ppv_id', true);
+		?>
+		<option value="<? echo $ppv_id; ?>"><?php echo 	the_title("","",FALSE) . " " . $amount; ?></option>
+		<?php
+	}else{
+                $prices = get_post_meta($post_id, 'edd_variable_prices', true);
+                if(is_array($prices)) {
+                	$count = 1;
+                        foreach($prices as $key => $value) {
+				$name = isset($prices[$key]['name']) ? $prices[$key]['name'] : '';
+                                $amount = isset($prices[$key]['amount']) ? $prices[$key]['amount'] : '';
+				$ppv_id = $key;
+		                ?>
+		                <option value="<? echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $name . " " . $amount; ?></option>
+                		<?php
+			}
+		}
+
+
+	}
+	endwhile; wp_reset_query(); ?>
+	</select>
+			<p class="submit">
+					<input type="hidden" name="hss_edd_user_id" value="<?php echo $_GET['user']; ?>"/>
+					<input type="hidden" name="hss_edd_action" value="hss_edd_add_action"/>
+					<input type="hidden" name="hss_edd_add_nonce" value="<?php echo wp_create_nonce('hss_edd_add_nonce'); ?>"/>
+					<input type="submit" value="Add Video Access" class="button-primary"/>
+				</p>
+			</form>
+	</div>
+<?php
+	echo ob_get_clean();
+	}else{
+?>
+
         <div class="wrap">
 
                 <!-- Display Plugin Icon, Header, and Description -->
@@ -275,6 +449,7 @@ function hss_edd_options_page () {
                 </form>
         </div>
 <?
+	}
 }
 
 function hss_menu () {
@@ -320,7 +495,6 @@ function hss_edd_is_stream($post_id) {
         </div>
 <?
 					
-					//echo '<p>'.get_post_meta($post_id, '_price_details',true).': '.get_post_meta($post_id, 'edd_price',true).'</p>';
 					echo '<input type="hidden" name="_variable_pricing" value="0"/>';
 				}else{
 					$prices = get_post_meta($post_id, 'edd_variable_prices', true);
@@ -631,7 +805,7 @@ function hss_edd_after_download_content($download_id) {
 add_action( 'edd_after_download_content', 'hss_edd_after_download_content', 5 );
 
 function hss_edd_complete_purchase_add_video($payment_id, $new_status, $old_status) {
-
+	_log("hss_edd_complete_purchase_add_video - ".$payment_id." - ".$new_status." - ".$old_status);
         if( $old_status == 'publish' || $old_status == 'complete')
                 return; // make sure that payments are only completed once
 
@@ -647,7 +821,6 @@ function hss_edd_complete_purchase_add_video($payment_id, $new_status, $old_stat
 
                 // increase purchase count and earnings
                 foreach($downloads as $download) {
-
 
 			if((get_post_meta($download['id'], 'is_streaming_video', true)) or (get_post_meta($download['id'], 'is_streaming_video_bundle', true))) {
                                 $options = get_option('hss_options');
@@ -1171,6 +1344,13 @@ function hss_edd_get_video_download_links($hss_video_id) {
 		return $return_string;
 }
 
+function hss_edd_user_action_links($actions, $user_object) {
+	$actions['hss_edd_add_video_access'] = '<a href="' . wp_nonce_url(admin_url('options-general.php?page=hss_admin&update_user_videos=yes&user=' . $user_object->ID), 'update_hss_edd_videos', 'hss_edd_nonce') . '">' . __('Add Video Access', 'hss-edd') . '</a>';
+	return $actions;
+}
+if(is_main_site()) {
+	add_filter('user_row_actions', 'hss_edd_user_action_links', 10, 2);
+}
 
 function hss_edd_set_download_labels($labels) {
 	$labels = array(

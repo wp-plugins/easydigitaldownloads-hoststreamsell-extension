@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 1.02
+Stable tag: 1.03
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -251,3 +251,6 @@ tweaked as needed
 
 = 1.02 =
 *Added ability to manually add video access for a registered user on your wordpress website
+
+= 1.03 =
+*Changed drop-down for manually adding access to be a list with checkboxes. Also fixed up some things on the EDD add/edit screens to allow adding normal file downloads for sale

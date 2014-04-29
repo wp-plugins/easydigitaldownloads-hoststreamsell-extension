@@ -159,117 +159,105 @@ function hss_edd_options_page () {
 
 		global $post;
 		//echo (int)$_POST['video_ppv'];
-		$args = array(
-		  'post_type'   => 'download',
-		  'meta_query'  => array(
-		    array(
-		      'key' => '_edd_ppv_id',
-		      'value' => (int)$_POST['video_ppv']
-		    )
-		  )
-		);
-		$my_query = new WP_Query( $args );
+		if (isset($_POST['video_ppv'])) {
+	                $wp_user_info = get_userdata((int)$_POST['hss_edd_user_id']);
+	                $user_info = array(
+	                        'id'         => $wp_user_info->ID,
+	                        'email'      => $wp_user_info->user_email,
+	                        'first_name' => $wp_user_info->user_firstname,
+	                        'last_name'  => $wp_user_info->user_lastname,
+	                        'address'    => $wp_user_info->address
+	                );
+			$downloads = array();
+			$details = array();
 
-		$wp_user_info = get_userdata((int)$_POST['hss_edd_user_id']);
+			$optionArray = $_POST['video_ppv'];
+			for ($i=0; $i<count($optionArray); $i++) {
+				$args = array(
+				  'post_type'   => 'download',
+				  'meta_query'  => array(
+				    array(
+				      'key' => '_edd_ppv_id',
+				      'value' => (int)$optionArray[$i]
+				    )
+				  )
+				);
+				$my_query = new WP_Query( $args );
 	
-	        $user_info = array(
-	                'id'         => $wp_user_info->ID,
-	                'email'      => $wp_user_info->user_email,
-	                'first_name' => $wp_user_info->user_firstname,
-	                'last_name'  => $wp_user_info->user_lastname,
-	                'address'    => $wp_user_info->address
-	        );
-	
-		if( $my_query->have_posts() ) {
-			$my_query->the_post();
+				if( $my_query->have_posts() ) {
+					$my_query->the_post();
 
-                        $details[ $key ]  = array(
-	                        'name'        => the_title("","",FALSE),
-                                'id'          => $post->ID,
-                                'item_number' => $item,
-                                'price'       => "0.00",
-                                'quantity'    => 1,
-                                'tax'         => 0,
-                        );
+               			        $details[ $key ]  = array(
+			                        'name'        => the_title("","",FALSE),
+		                                'id'          => $post->ID,
+		                                'item_number' => $item,
+		                                'price'       => "0.00",
+		                                'quantity'    => 1,
+		                                'tax'         => 0,
+		                        );
 
-                       $download = array(
-                                'id' => $post->ID,
-                                'options' => array('price_id' => (int)$_POST['video_ppv'])
-                       );
-                       $purchase_data = array(
-             	                'downloads' => array( $download ),
-                                'price' => "0",
-                                'purchase_key' => md5(uniqid(rand(), true)),
-                                'user_email' => $wp_user_info->user_email,
-                                'date' => date('Y-m-d H:i:s'),
-                                'user_id' => (int)$_POST['hss_edd_user_id'],
-                                //'post_data' => $_POST,
-                                'user_info' => $user_info,
-                                'cart_details' => $details,
-                       );
-                       // Record the pending payment
-                       $payment = edd_insert_payment( $purchase_data );
+		                       $download = array(
+		                                'id' => $post->ID,
+		                                'options' => array('price_id' => (int)$optionArray[$i])
+		                       );
+					array_push($downloads, $download);
 
-                       if ( $payment ){
-               	       		edd_update_payment_status( $payment, 'publish' );
-                                ?>
-                                <p>Successfully added video access!</p>
-                       <?php
-                       }
-
-		}else{
-			$args = array(
-			  'post_type'   => 'download',
-			  'meta_query'  => array(
-			    array(
-			      'key' => '_variable_pricing',
-			      'value' => 1
-			    )
-			  )
-			);
-			$my_query = new WP_Query( $args );
-			if( $my_query->have_posts() ) {
-				while ($my_query->have_posts()) : $my_query->the_post();
-					$prices = get_post_meta($post->ID, 'edd_variable_prices', true);
-					foreach($prices as $key => $value) {
-						if($key == (int)$_POST['video_ppv']){
-							$details[ $key ]  = array(
-					                        'name'        => get_the_title( $post->ID ),
-					                        'id'          => $post->ID,
-					                        'item_number' => $item,
-					                        'price'       => "0.00",
-					                        'quantity'    => 1,
-					                        'tax'         => 0,
-					                );
-
-							//echo "TEST " . the_title("","",FALSE) . " " . $key;
-							$download = array(
-								'id' => $post->ID,
-								'options' => array('price_id' => (int)$_POST['video_ppv'])
-							);
-				                        $purchase_data = array(
-				                                'downloads' => array( $download ),
-				                                'price' => "0",
-				                                'purchase_key' =>  md5(uniqid(rand(), true)),
-				                                'user_email' => $wp_user_info->user_email,
-	                        			        'date' => date('Y-m-d H:i:s'),
-				                                'user_id' => (int)$_POST['hss_edd_user_id'],
-				                                //'post_data' => $_POST,
-				                                'user_info' => $user_info,
-				                                'cart_details' => $details,
-				                        );
-					        	// Record the pending payment
-						        $payment = edd_insert_payment( $purchase_data );
-
-						        if ( $payment ){ 
-						                edd_update_payment_status( $payment, 'publish' );
-								?>
-								<p>Successfully added video access!</p>
-								<?php
+				}else{
+					$args = array(
+					  'post_type'   => 'download',
+					  'meta_query'  => array(
+					    array(
+					      'key' => '_variable_pricing',
+					      'value' => 1
+					    )
+					  )
+					);
+					$my_query = new WP_Query( $args );
+					if( $my_query->have_posts() ) {
+						while ($my_query->have_posts()) : $my_query->the_post();
+							$prices = get_post_meta($post->ID, 'edd_variable_prices', true);
+							foreach($prices as $key => $value) {
+								if($key == (int)$optionArray[$i]){
+									$details[ $key ]  = array(
+							                        'name'        => get_the_title( $post->ID ),
+							                        'id'          => $post->ID,
+							                        'item_number' => $item,
+							                        'price'       => "0.00",
+							                        'quantity'    => 1,
+							                        'tax'         => 0,
+							                );
+		
+									//echo "TEST " . the_title("","",FALSE) . " " . $key;
+									$download = array(
+										'id' => $post->ID,
+										'options' => array('price_id' => (int)$optionArray[$i])
+									);
+									array_push($downloads, $download);			
+								}
 							}
-						}
+						endwhile;
 					}
-				endwhile;
+				}
+			}
+                       	$purchase_data = array(
+	                       'downloads' => $downloads,
+	                       'price' => "0",
+	                       'purchase_key' => md5(uniqid(rand(), true)),
+	                       'user_email' => $wp_user_info->user_email,
+	                       'date' => date('Y-m-d H:i:s'),
+	                       'user_id' => (int)$_POST['hss_edd_user_id'],
+	                       //'post_data' => $_POST,
+	                       'user_info' => $user_info,
+	                       'cart_details' => $details,
+	                );
+	                // Record the pending payment
+	                $payment = edd_insert_payment( $purchase_data );
+
+	                if ( $payment ){
+	                       edd_update_payment_status( $payment, 'publish' );
+        	               ?>
+                	       <p>Successfully added video access!</p>
+	                <?php
 			}
 		}
 		?>
@@ -283,7 +271,7 @@ function hss_edd_options_page () {
 	<H2>Add Video Access</H2>
 	<BR>
 	<form id="hss-edd-user-video-update" action="" method="POST">
-	<select name="video_ppv">
+	<?php //<select name="video_ppv"> ?>
 	<?php  $loop = new WP_Query( array( 'post_type' => 'download', 'posts_per_page' => -1 ) ); ?>
 <?php while ( $loop->have_posts() ) : $loop->the_post();
 	$post_id = $post->ID;
@@ -291,7 +279,7 @@ function hss_edd_options_page () {
         {
 		$ppv_id = get_post_meta($post_id, '_edd_ppv_id', true);
 		?>
-		<option value="<? echo $ppv_id; ?>"><?php echo 	the_title("","",FALSE) . " " . $amount; ?></option>
+		<input type="checkbox" name="video_ppv[]" value="<? echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $amount; ?><BR>
 		<?php
 	}else{
                 $prices = get_post_meta($post_id, 'edd_variable_prices', true);
@@ -302,7 +290,7 @@ function hss_edd_options_page () {
                                 $amount = isset($prices[$key]['amount']) ? $prices[$key]['amount'] : '';
 				$ppv_id = $key;
 		                ?>
-		                <option value="<? echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $name . " " . $amount; ?></option>
+				<input type="checkbox" name="video_ppv[]" value="<? echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $name . " "  . $amount; ?><BR>
                 		<?php
 			}
 		}
@@ -310,7 +298,7 @@ function hss_edd_options_page () {
 
 	}
 	endwhile; wp_reset_query(); ?>
-	</select>
+	<?php //</select> ?>
 			<p class="submit">
 					<input type="hidden" name="hss_edd_user_id" value="<?php echo $_GET['user']; ?>"/>
 					<input type="hidden" name="hss_edd_action" value="hss_edd_add_action"/>
@@ -459,6 +447,23 @@ function hss_menu () {
 add_action('admin_menu','hss_menu');
 
 
+function add_hss_video_hidden_fields($post_id) {
+        global $edd_options;
+                        if(get_post_meta($post_id, 'is_streaming_video', true)){
+				echo '<p><b><i><font color=red>WARNING: To update pricing log into your HostStreamSell account and make your changes, then perform the update in HSS Settings, as any changes will be lost on next sync</font></i></b></p>';
+				echo '<p><b><i>Note that you can however add files for download with purchase of this video</i></b></p><br>';
+                                echo '<input type="hidden" name="is_streaming_video_bundle" value="0"/>';
+                                echo '<input type="hidden" name="is_streaming_video" value="1"/>';
+                                echo '<input type="hidden" name="_edd_video_id" value="'.(get_post_meta($post_id, '_edd_video_id', true)).'"/>';
+                        }
+                        if(get_post_meta($post_id, 'is_streaming_video_bundle', true)){
+				echo '<p><b><i><font color=red>WARNING: To update pricing log into your HostStreamSell account and make your changes, then perform the update in HSS Settings, as any changes will be lost on next sync</font></i></b></p>';
+				echo '<p><b><i>Note that you can however add files for download with purchase of this video group</i></b></p><br>';
+                                echo '<input type="hidden" name="is_streaming_video_bundle" value="1"/>';
+                                echo '<input type="hidden" name="is_streaming_video" value="0"/>';
+                                echo '<input type="hidden" name="_edd_group_id" value="'.(get_post_meta($post_id, '_edd_group_id', true)).'"/>';
+                        }
+}
 
 
 function hss_edd_is_stream($post_id) {
@@ -515,9 +520,10 @@ function hss_edd_is_stream($post_id) {
 				}
 	//echo '</td></tr>';
 }
-remove_action('edd_meta_box_fields', 'edd_render_price_field', 10);
-add_action('edd_meta_box_fields', 'hss_edd_is_stream', 20);
+#remove_action('edd_meta_box_fields', 'edd_render_price_field', 10);
+#add_action('edd_meta_box_fields', 'hss_edd_is_stream', 20);
 
+add_action('edd_meta_box_fields', 'add_hss_video_hidden_fields', 0);
 
 function edd_download_meta_box_save_stream($post_id) {
         global $post;
@@ -1354,19 +1360,19 @@ if(is_main_site()) {
 
 function hss_edd_set_download_labels($labels) {
 	$labels = array(
-	'name' => _x('Videos', 'post type general name', 'edd'),
-	'singular_name' => _x('Video', 'post type singular name', 'edd'),
+	'name' => _x('Products', 'post type general name', 'edd'),
+	'singular_name' => _x('Product', 'post type singular name', 'edd'),
 	'add_new' => __('Add New', 'edd'),
-	'add_new_item' => __('Add New Video', 'edd'),
-	'edit_item' => __('Edit Video', 'edd'),
-	'new_item' => __('New Video', 'edd'),
-	'all_items' => __('All Videos', 'edd'),
-	'view_item' => __('View Video', 'edd'),
-	'search_items' => __('Search Videos', 'edd'),
+	'add_new_item' => __('Add New Download', 'edd'),
+	'edit_item' => __('Edit', 'edd'),
+	'new_item' => __('New', 'edd'),
+	'all_items' => __('All', 'edd'),
+	'view_item' => __('View', 'edd'),
+	'search_items' => __('Search', 'edd'),
 	'not_found' => __('No Videos found', 'edd'),
 	'not_found_in_trash' => __('No Videos found in Trash', 'edd'),
 	'parent_item_colon' => '',
-	'menu_name' => __('Videos', 'edd')
+	'menu_name' => __('Videos & Downloads', 'edd')
 	);
 	return $labels;
 }

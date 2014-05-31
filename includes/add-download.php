@@ -713,6 +713,35 @@ function hss_edd_before_download_content($download_id) {
                                 if (is_ssl()) {
                                         $httpString = "https";
                                 }
+
+                                $subtitle_count = $xml->result->subtitle_count;
+                                $subtitle_index = 1;
+                                $subtitle_text = "";
+                                $captions = "";
+                                if($subtitle_count>0){
+                                        $subtitle_text = ",
+                                                tracks: [{";
+                                        while($subtitle_index <= $subtitle_count)
+                                        {
+                                                $subtitle_label = (string)$xml->result[0]->subtitles->{'subtitle_label_'.$subtitle_index}[0];
+                                                $subtitle_file = (string)$xml->result[0]->subtitles->{'subtitle_file_'.$subtitle_index}[0];
+                                                $subtitle_text .= "
+                                                    file: \"https://www.hoststreamsell.com/mod/secure_videos/subtitles/$subtitle_file?rand=".randomString()."\",
+                                                    label: \"$subtitle_label\",
+                                                    kind: \"captions\",
+                                                    \"default\": true";
+                                                $subtitle_index += 1;
+                                        }
+                                        $subtitle_text .= "
+                                                }]";
+                                        $captions = "
+                                                captions: {
+                                                        color: '#FFFFFF',
+                                                        fontSize: 24,
+                                                        backgroundOpacity: 0
+                                                },";
+                                }
+
 		                $video = $video."
 		                <script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
 				<script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
@@ -756,8 +785,8 @@ function hss_edd_before_download_content($download_id) {
 					            type: 'rtmp'
 					        },{
 				        	    file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'
-					        }]
-					    }],
+						 }]$subtitle_text
+                                            }],$captions
 					    height: $video_height,
 					    primary: 'flash',		
 					    width: $video_width
@@ -1351,7 +1380,7 @@ function hss_edd_get_video_download_links($hss_video_id) {
 }
 
 function hss_edd_user_action_links($actions, $user_object) {
-	$actions['hss_edd_add_video_access'] = '<a href="' . wp_nonce_url(admin_url('options-general.php?page=hss_admin&update_user_videos=yes&user=' . $user_object->ID), 'update_hss_edd_videos', 'hss_edd_nonce') . '">' . __('Add Video Access', 'hss-edd') . '</a>';
+	$actions['hss_edd_add_video_access'] = '<a href="' . wp_nonce_url(admin_url('options-general.php?page=hss_admin&update_user_videos=yes&user=' . $user_object->ID), 'update_hss_edd_videos', '_wpnonce') . '">' . __('Add Video Access', 'hss-edd') . '</a>';
 	return $actions;
 }
 if(is_main_site()) {
@@ -1377,5 +1406,21 @@ function hss_edd_set_download_labels($labels) {
 	return $labels;
 }
 add_filter('edd_download_labels', 'hss_edd_set_download_labels');
+
+/*
+* Create a random string
+*@param $length the length of the string to create
+* @return $str the string
+*/
+function randomString($length = 12) {
+        $str = "";
+        $characters = array_merge(range('A','Z'), range('a','z'), range('0','9'));
+        $max = count($characters) - 1;
+        for ($i = 0; $i < $length; $i++) {
+                $rand = mt_rand(0, $max);
+                $str .= $characters[$rand];
+        }
+        return $str;
+}
 
 ?>

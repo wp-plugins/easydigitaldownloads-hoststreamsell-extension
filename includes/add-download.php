@@ -731,6 +731,10 @@ function hss_edd_before_download_content($download_id) {
                                                     kind: \"captions\",
                                                     \"default\": true";
                                                 $subtitle_index += 1;
+                                                if($subtitle_index <= $subtitle_count){
+                                                        $subtitle_text .= "
+                                                },{";
+						}
                                         }
                                         $subtitle_text .= "
                                                 }]";

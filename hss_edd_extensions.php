@@ -1,12 +1,12 @@
 <?php
 /*
 Plugin Name: Easy Digital Downloads HSS Extension for Streaming Video
-Plugin URI: http://hoststreamsell.com
+Plugin URI: https://www.hoststreamsell.com
 Description: Sell Streaming Video Through WordPress (extends functionality in Easy Digital Downloads plugin)
 Author: Gavin Byrne
-Author URI: http://hoststreamsell.com
+Author URI: https://www.hoststreamsell.com
 Contributors: 
-Version: 1.04
+Version: 1.05
 
 Easy Digital Downloads HSS Extension for Streaming Video is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

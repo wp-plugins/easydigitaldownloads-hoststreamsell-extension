@@ -1,0 +1,9 @@
+
+.hss_watching_video_text { text-align:center; }
+.hss_watching_trailer_text { text-align:center; }
+
+.fluid-width-video-wrapper {
+width: 100%;
+position: static !important;
+padding: 0;
+}

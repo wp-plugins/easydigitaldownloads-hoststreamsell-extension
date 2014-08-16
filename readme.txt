@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 3.9.1
-Stable tag: 1.06
+Stable tag: 1.07
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,9 +29,9 @@ This plugin requires your customer to register on your website, as their WordPre
 
 Please read Installation instructions!
 
-More information at [www.HostStreamSell.com](http//www.hoststreamsell.com/).
+More information at [www.HostStreamSell.com](https://www.hoststreamsell.com).
 
-Demo at [edd_demo.hoststreamsell.com](http://edd_demo.hoststreamsell.com/).
+Demo at [edd_demo.hoststreamsell.com](http://edd_demo.hoststreamsell.com).
 
 == Installation ==
 
@@ -260,3 +260,9 @@ fixed an issue with manually adding video access
 
 = 1.05 =
 Update for subtitle support
+
+= 1.06 =
+Syntax fixes
+
+= 1.07 =
+Syntax fixes

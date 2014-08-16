@@ -383,7 +383,7 @@ function hss_edd_options_page () {
                                                         ?><option value="fill" SELECTED>fill</option><?
                                                 }else{
                                                         ?><option value="fill">fill</option>
-						<?}?>
+						<?} ?>
 						</select>
 
                                         </td>
@@ -402,7 +402,7 @@ function hss_edd_options_page () {
                                                         ?><option value="DEBUG" SELECTED>Debug</option><?
                                                 }else{
                                                         ?><option value="DEBUG">Debug</option><?
-                                                }?>
+                                                } ?>
 						</select>
                                         </td>
                                 </tr>

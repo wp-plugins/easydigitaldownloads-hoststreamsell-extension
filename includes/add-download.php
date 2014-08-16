@@ -1,4 +1,4 @@
-<?
+<?php
 
 register_activation_hook(__FILE__, 'hss_edd_add_defaults');
 register_uninstall_hook(__FILE__, 'hss_edd_delete_plugin_options');
@@ -279,7 +279,7 @@ function hss_edd_options_page () {
         {
 		$ppv_id = get_post_meta($post_id, '_edd_ppv_id', true);
 		?>
-		<input type="checkbox" name="video_ppv[]" value="<? echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $amount; ?><BR>
+		<input type="checkbox" name="video_ppv[]" value="<?php echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $amount; ?><BR>
 		<?php
 	}else{
                 $prices = get_post_meta($post_id, 'edd_variable_prices', true);
@@ -290,7 +290,7 @@ function hss_edd_options_page () {
                                 $amount = isset($prices[$key]['amount']) ? $prices[$key]['amount'] : '';
 				$ppv_id = $key;
 		                ?>
-				<input type="checkbox" name="video_ppv[]" value="<? echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $name . " "  . $amount; ?><BR>
+				<input type="checkbox" name="video_ppv[]" value="<?php echo $ppv_id; ?>"><?php echo  the_title("","",FALSE) . " " . $name . " "  . $amount; ?><BR>
                 		<?php
 			}
 		}
@@ -389,7 +389,7 @@ function hss_edd_options_page () {
                                         </td>
                                 </tr>
 				<tr>
-                                        <th scope="row">Logging Level - <i>Logs to <BR>wp-content/uploads/hss_edd/log.txt <? echo $options['logging'];?></i></th>
+                                        <th scope="row">Logging Level - <i>Logs to <BR>wp-content/uploads/hss_edd/log.txt <?php echo $options['logging'];?></i></th>
                                         <td>
                                                 <select name="hss_options[logging]">
 						<?
@@ -495,7 +495,7 @@ function hss_edd_is_stream($post_id) {
                 <?php if(!isset( $edd_options['currency_position'] ) || $edd_options['currency_position'] == 'before') : ?>
                         <?php echo get_post_meta($post_id, '_price_details',true).' '.edd_currency_filter(''); ?><input type="text" name="edd_price" id="edd_price" value="<?php echo isset( $price ) ? esc_attr( edd_format_amount( $price ) ) : ''; ?>" size="30" style="width:80px;" placeholder="9.99" readonly="readonly" />
                 <?php else : ?>
-                        <? echo get_post_meta($post_id, '_price_details',true); ?> <input type="text" name="edd_price" id="edd_price" value="<?php echo isset( $price ) ? esc_attr( edd_format_amount( $price ) ) : ''; ?>" size="30" style="width:80px;" placeholder="9.99" readonly="readonly" /><?php echo edd_currency_filter(''); ?>
+                        <?php echo get_post_meta($post_id, '_price_details',true); ?> <input type="text" name="edd_price" id="edd_price" value="<?php echo isset( $price ) ? esc_attr( edd_format_amount( $price ) ) : ''; ?>" size="30" style="width:80px;" placeholder="9.99" readonly="readonly" /><?php echo edd_currency_filter(''); ?>
                 <?php endif; ?>
         </div>
 <?

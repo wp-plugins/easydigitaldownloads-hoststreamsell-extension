@@ -354,6 +354,18 @@ function hss_edd_options_page () {
                                         </td>
                                 </tr>
                                 <tr>
+                                        <th scope="row">Make Player Width and Height Responsive</th>
+                                        <td>
+                                                <input type="checkbox" name="hss_options[responsive_player]" value="1"<?php checked( 1 == $options['responsive_player']); ?> />
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <th scope="row">Reponsive Player Max Width<BR><i>(default is 640 if left blank, only used when Reponsive Player checkbox is checked)</i></th>
+                                        <td>
+                                                Width <input type="text" size="10" name="hss_options[player_responsive_max_width]" value="<?php echo $options['player_responsive_max_width']; ?>" />
+                                        </td>
+                                </tr>
+                                <tr>
                                         <th scope="row">JW Player License Key<BR><i>(available from www.longtailvideo.com)</i></th>
                                         <td>
                                                 <input type="text" size="50" name="hss_options[jwplayer_license]" value="<?php echo $options['jwplayer_license']; ?>" />
@@ -665,6 +677,7 @@ function hss_edd_before_download_content($download_id) {
 		                $trailer_duration = $xml->result->trailer_duration;
                 		$video_width = $xml->result->width;
 		                $video_height = $xml->result->height;
+				$aspect_ratio = $xml->result->aspect_ratio;
 		                if($video_width>640){
 					$video_width = "640";
 					$video_height = "390";
@@ -748,17 +761,21 @@ function hss_edd_before_download_content($download_id) {
 
 		                $video = $video."
 		                <script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
-				<script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer/swfobject.js\"></script>
-				<script type=\"text/javascript\">jwplayer.key=\"".$options['jwplayer_license']."\";</script>
-		                <center>
-                		<div>
-		                <div id='videoframe'>If you are seing this you may not have Flash installed!</div>
-
-                		<SCRIPT type=\"text/javascript\">
+				<script type=\"text/javascript\">jwplayer.key=\"".$options['jwplayer_license']."\";</script>";
+				if($options["responsive_player"]==1){
+					$responsive_width="640";
+					if($options["player_responsive_max_width"]!="")
+						$responsive_width=$options["player_responsive_max_width"];
+					$video.="<div class='hss_video_player' style='max-width:".$responsive_width."px;'>";
+				}else{
+                                        $video.="<div class='hss_video_player'>";
+				}
+                		$video.="<div id='videoframe'>An error occurred setting up the video player</div>
+				<SCRIPT type=\"text/javascript\">
 
 		                var viewTrailer = false;
-                		var videoFiles = new Array();;
-		                var trailerFiles = new Array();;
+                		var videoFiles = new Array();
+		                var trailerFiles = new Array();
 
                 		var agent=navigator.userAgent.toLowerCase();
 		                var is_iphone = (agent.indexOf('iphone')!=-1);
@@ -781,7 +798,7 @@ function hss_edd_before_download_content($download_id) {
 		                function newJWPlayer()
 		                {
 					jwplayer('videoframe').setup({
-					    'stretching':'".$options["jwplayer_stretching"]."',
+					    stretching:'".$options["jwplayer_stretching"]."',
 					    playlist: [{
 					        image: '$hss_video_big_thumb_url',
 				        	sources: [{
@@ -791,10 +808,16 @@ function hss_edd_before_download_content($download_id) {
 				        	    file: 'http://".$hss_video_mediaserver_ip.":1935/hss/smil:".$hss_video_smil."/playlist.m3u8".$hss_video_smil_token."&referer=".urlencode($referrer)."'
 						 }]$subtitle_text
                                             }],$captions
-					    height: $video_height,
-					    primary: 'flash',		
-					    width: $video_width
-					});
+					    primary: 'flash',	";
+				if($options["responsive_player"]==1){	
+				        $video.="                  width: '100%',
+                                            aspectratio: '".$aspect_ratio."'";
+				}else{
+        				$video.="                 height: $video_height,
+                       			  width: $video_width";
+				}
+
+	$video.="			});
 		                }
 
 				function rtspPlayer()
@@ -823,7 +846,7 @@ function hss_edd_before_download_content($download_id) {
 
 			        </script>
 				</div>
-			        </center>";
+			        ";
 			        $video .= "<BR>";
 
 			}

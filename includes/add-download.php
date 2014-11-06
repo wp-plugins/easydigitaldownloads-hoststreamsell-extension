@@ -31,27 +31,31 @@ function register_plugin_styles() {
 function hss_edd_init(){
         register_setting( 'hss_edd_plugin_options', 'hss_options', 'hss_edd_validate_options' );
 	$options = get_option('hss_options');
-	if (array_key_exists('database_id', $options)) {	
-		if($options['database_id'] == ""){
+	if(is_array($options)){
+		if (array_key_exists('database_id', $options)) {	
+			if($options['database_id'] == ""){
+				$options['database_id'] = "0";
+				update_option('hss_options', $options);
+			}
+		}else{
 			$options['database_id'] = "0";
 			update_option('hss_options', $options);
 		}
-	}else{
-		$options['database_id'] = "0";
-		update_option('hss_options', $options);
+	        if (array_key_exists('watching_video_text', $options)==false) {
+	                $options['watching_video_text'] = "You have access to this video";
+	                update_option('hss_options', $options);
+	        }
 	}
-        if (array_key_exists('watching_video_text', $options)==false) {
-                $options['watching_video_text'] = "You have access to this video";
-                update_option('hss_options', $options);
-        }
 }
 
 function hss_edd_validate_options($input) {
          // strip html from textboxes
-        $input['api_key'] =  wp_filter_nohtml_kses($input['api_key']); // Sanitize textarea input (strip html tags, and escape characters)
+        $input['api_key'] =  trim(wp_filter_nohtml_kses($input['api_key']));
 	
 	if (!is_numeric($input['database_id'])) {
 		$input['database_id'] = "0";
+	}else{
+		$input['database_id'] =  trim(wp_filter_nohtml_kses($input['database_id']));
 	}
         return $input;
 }

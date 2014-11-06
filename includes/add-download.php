@@ -356,7 +356,7 @@ function hss_edd_options_page () {
                                 <tr>
                                         <th scope="row">Make Player Width and Height Responsive</th>
                                         <td>
-                                                <input type="checkbox" name="hss_options[responsive_player]" value="1"<?php checked( 1 == $options['responsive_player']); ?> />
+                                                <input type="checkbox" name="hss_options[responsive_player]" value="1"<?php checked( $options['responsive_player'], 1); ?> />
                                         </td>
                                 </tr>
                                 <tr>
@@ -369,6 +369,12 @@ function hss_edd_options_page () {
                                         <th scope="row">JW Player License Key<BR><i>(available from www.longtailvideo.com)</i></th>
                                         <td>
                                                 <input type="text" size="50" name="hss_options[jwplayer_license]" value="<?php echo $options['jwplayer_license']; ?>" />
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <th scope="row">Subtitle Font Size<BR><i>(leave blank for default size)</i></th>
+                                        <td>
+                                                <input type="text" size="5" name="hss_options[subtitle_font_size]" value="<?php echo $options['subtitle_font_size']; ?>" />
                                         </td>
                                 </tr>
                                 <tr>
@@ -421,7 +427,7 @@ function hss_edd_options_page () {
                                 <tr>
                                         <th scope="row">Disable updating video descriptions</th>
                                         <td>
-                                                <input type="checkbox" name="hss_options[disable_desc_updates]" value="1"<?php checked( 1 == $options['disable_desc_updates']); ?> />
+                                                <input type="checkbox" name="hss_options[disable_desc_updates]" value="1"<?php checked( $options['disable_desc_updates'], 1); ?> />
                                         </td>
                                 </tr>		
                                 <tr>
@@ -751,10 +757,15 @@ function hss_edd_before_download_content($download_id) {
                                         }
                                         $subtitle_text .= "
                                                 }]";
+
+					$fontSize = "";
+					if($options["subtitle_font_size"]!=""){
+						$fontSize = "
+							fontSize: ".$options["subtitle_font_size"].",";
+					}
                                         $captions = "
                                                 captions: {
-                                                        color: '#FFFFFF',
-                                                        fontSize: 24,
+                                                        color: '#FFFFFF',".$fontSize."
                                                         backgroundOpacity: 0
                                                 },";
                                 }
@@ -1097,7 +1108,7 @@ function hss_edd_update_videos()
     							if ( is_wp_error( $tmp ) ) {
 								_log($tmp);
         							@unlink( $file_array[ 'tmp_name' ] );
-        							return $tmp;
+        							#return $tmp;
     							}
 
     							$thumb_id = media_handle_sideload( $file_array, 0 );
@@ -1105,11 +1116,11 @@ function hss_edd_update_videos()
     							if ( is_wp_error( $thumb_id ) ) {
 								_log($thumb_id);
         							@unlink( $file_array['tmp_name'] );
-							        return $thumb_id;
+							        #return $thumb_id;
     							}
 
     							$attachment_url = wp_get_attachment_url( $thumb_id );
-							_log("Attachment URL (".$thumb_id."): ".$attachment_url);
+							#_log("Attachment URL (".$thumb_id."): ".$attachment_url);
     							// Do whatever you have to here
 							set_post_thumbnail( $post_ID, $thumb_id );
 

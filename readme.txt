@@ -4,8 +4,8 @@ Plugin URI: http://edd_demo.hoststreamsell.com
 Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
-Tested up to: 3.9.1
-Stable tag: 1.1
+Tested up to: 4.0
+Stable tag: 1.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -269,3 +269,7 @@ Syntax fixes
 
 = 1.1 =
 Added support for responsive JW Player
+
+= 1.11 =
+
+Made improvements to enable videos still be created if upload directory is not present or not writeable

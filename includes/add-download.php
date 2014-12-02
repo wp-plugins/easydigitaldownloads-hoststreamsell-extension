@@ -385,27 +385,27 @@ function hss_edd_options_page () {
                                         <th scope="row">JW Player Stretching<BR><i>(http://www.longtailvideo.com/support/jw-player/28839/embedding-the-player)</i></th>
                                         <td>
                                                 <select name="hss_options[jwplayer_stretching]">
-						<?
+						<?php
                                                 if (($options['jwplayer_stretching']=="uniform") or ($options['jwplayer_stretching']=="")){
-                                                        ?><option value="uniform" SELECTED>uniform</option><?
+                                                        ?><option value="uniform" SELECTED>uniform</option><?php
                                                 }else{
-                                                        ?><option value="uniform">uniform</option><?
+                                                        ?><option value="uniform">uniform</option><?php
                                                 }
 						if ($options['jwplayer_stretching']=="none"){
-							?><option value="none" SELECTED>none</option><?
+							?><option value="none" SELECTED>none</option><?php
 						}else{
-							?><option value="none">none</option><?
+							?><option value="none">none</option><?php
                                                 }
 						if ($options['jwplayer_stretching']=="exactfit"){
-                                                        ?><option value="exactfit" SELECTED>exactfit</option><?
+                                                        ?><option value="exactfit" SELECTED>exactfit</option><?php
                                                 }else{
-                                                        ?><option value="exactfit">exactfit</option><?
+                                                        ?><option value="exactfit">exactfit</option><?php
                                                 }
 						if ($options['jwplayer_stretching']=="fill"){
-                                                        ?><option value="fill" SELECTED>fill</option><?
+                                                        ?><option value="fill" SELECTED>fill</option><?php
                                                 }else{
                                                         ?><option value="fill">fill</option>
-						<?} ?>
+						<?php } ?>
 						</select>
 
                                         </td>
@@ -414,16 +414,16 @@ function hss_edd_options_page () {
                                         <th scope="row">Logging Level - <i>Logs to <BR>wp-content/uploads/hss_edd/log.txt <?php echo $options['logging'];?></i></th>
                                         <td>
                                                 <select name="hss_options[logging]">
-						<?
+						<?php
                                                 if (($options['logging']=="NORMAL") or ($options['logging']=="")){
-                                                        ?><option value="NORMAL" SELECTED>Normal</option><?
+                                                        ?><option value="NORMAL" SELECTED>Normal</option><?php
                                                 }else{
-                                                        ?><option value="NORMAL">Normal</option><?
+                                                        ?><option value="NORMAL">Normal</option><?php
                                                 }
                                                 if ($options['logging']=="DEBUG"){
-                                                        ?><option value="DEBUG" SELECTED>Debug</option><?
+                                                        ?><option value="DEBUG" SELECTED>Debug</option><?php
                                                 }else{
-                                                        ?><option value="DEBUG">Debug</option><?
+                                                        ?><option value="DEBUG">Debug</option><?php
                                                 } ?>
 						</select>
                                         </td>
@@ -458,7 +458,7 @@ function hss_edd_options_page () {
                         </p>
                 </form>
         </div>
-<?
+<?php
 	}
 }
 
@@ -494,7 +494,7 @@ function hss_edd_is_stream($post_id) {
         <p>
                 <strong><?php _e( 'Pricing Options:', 'edd' ); ?></strong>
         </p>
-<?
+<?php
 			if(get_post_meta($post_id, 'is_streaming_video', true)){
                                 echo '<input type="hidden" name="is_streaming_video_bundle" value="0"/>';
 				echo '<input type="hidden" name="is_streaming_video" value="1"/>';
@@ -520,7 +520,7 @@ function hss_edd_is_stream($post_id) {
                         <?php echo get_post_meta($post_id, '_price_details',true); ?> <input type="text" name="edd_price" id="edd_price" value="<?php echo isset( $price ) ? esc_attr( edd_format_amount( $price ) ) : ''; ?>" size="30" style="width:80px;" placeholder="9.99" readonly="readonly" /><?php echo edd_currency_filter(''); ?>
                 <?php endif; ?>
         </div>
-<?
+<?php
 					
 					echo '<input type="hidden" name="_variable_pricing" value="0"/>';
 				}else{

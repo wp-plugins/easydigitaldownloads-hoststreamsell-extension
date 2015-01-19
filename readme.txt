@@ -10,22 +10,24 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 
-Sell access to streaming videos through WordPress by integrating the HostStreamSell video platform with the great EasyDigitalDownloads plugin
+The easiest and most advanced solution to selling videos with WordPress and EasyDigitalDownloads
 
 == Description ==
 
-Sell access to streaming videos with total control over how long you want to
-give access for, whether you want to allow downloads or be stream only, and
-whether you want to limit the amount of usage in terms of a bandwidth usage cap.
+Get up and running in 3 easy steps!
 
-Features of the plugin include:
+* Sign up for a free trial account on
+[HostStreamSell.com](https://www.hoststreamsell.com/?utm_source=wordpress&utm_medium=link&utm_campaign=edd_plugin)
+* Upload, encode, and organize your videos
+* Install EasyDigitalDownloads and our EasyDigitalDownloads integration plugin on your website
+* and create all video products on your website with one click
 
-* Extend the flexibility of the EasyDigitalDownloads plugin to sell access to videos hosted on the HostStreamSell platform
-* Sell a single video as a single item
-* Sell a group of videos as a single purchasable item
-* Have multiple selling options for a video or group of videos
+Everything you could need!
 
-This plugin requires your customer to register on your website, as their WordPress user ID in your database will be used in our system for adding (and later verifying) access to a video. This requires that they log in every time they come back to your website and want to stream or download their purchased videos. A sample history-downloads.php template file is included with this plugin to allow you easily create a page showing a users purchased videos, links to the videos, and download links (if you have allowed download access). See [EasyDigitalDownloads.com](https://easydigitaldownloads.com/docs/customizing-the-download-history-template/) for more details on using this template.
+* Rent or sell
+* Stream only or streaming and download.
+* Sell individual videos as well as groups of videos
+* Provide multiple purchase options for the one video or video group
 
 Please read Installation instructions!
 
@@ -35,20 +37,20 @@ Demo at [edd_demo.hoststreamsell.com](http://edd_demo.hoststreamsell.com).
 
 == Installation ==
 
-1. Activate the plugin
-2. Go to Settings > HSS Admin and enter API key from your HostStreamSell
-account
-3. Click the Update key to Pull video information from HostStreamSell platform
-and insert into the system automatically (also to update)
-4. Go to Videos > Settings and then select the Misc tab at the top of the
-page. Check the box for 'Disable Guest Checkout' and press Save Changes
-
+1. Sign up for a free trial account on
+[HostStreamSell.com](https://www.hoststreamsell.com/?utm_source=wordpress&utm_medium=link&utm_campaign=woo_plugin)
+2. Upload, encode, and organize your videos
+3. Install EasyDigitalDownloads and this plugin
+ - Go to Settings > HSS Admin and enter API key from your HostStreamSell account and press Save
+ - Click the Update key to Pull video information from HostStreamSell platform and insert video all products into the system automatically
+ - Go to Videos & Downloads > Settings and then select the Misc tab at the top of the page. Check the box for 'Disable Guest Checkout' and press Save Changes
 
 See https://easydigitaldownloads.com/themes/ for some pre built options for themes specifically designed to work with Easy DigitalDownloads.
-https://easydigitaldownloads.com/themes/edd-starter-theme/ is a nice free
-theme which is a good starting point.
+https://easydigitaldownloads.com/themes/edd-starter-theme/ is a nice free theme which is a good starting point.
 
 Create a page with the [download_history] shortcode if you want customers to be able to see all videos purchased and download a copy. You will place the history-downloads.php template file provided in a directory called edd_templates in your theme directory (rename from history-downloads.php.txt to history-downloads.php).
+
+This plugin requires your customer to register on your website, as their WordPress user ID in your database will be used in our system for adding (and later verifying) access to a video. This requires that they log in every time they come back to your website and want to stream or download their purchased videos. A sample history-downloads.php template file is included with this plugin to allow you easily create a page showing a users purchased videos, links to the videos, and download links (if you have allowed download access). See [EasyDigitalDownloads.com](https://easydigitaldownloads.com/docs/customizing-the-download-history-template/) for more details on using this template.
 
 Add the following to your template functions.php file to add some extra information on the video page. Feel free to customize this to your needs - that is why it is outside of the main plugin :)
 

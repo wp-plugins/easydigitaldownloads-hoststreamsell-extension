@@ -8,7 +8,7 @@ function hss_edd_add_defaults() {
         $tmp = get_option('hss_options');
     if(($tmp['chk_default_options_db']=='1')||(!is_array($tmp))) {
                 delete_option('hss_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
-                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform","logging" => "NORMAL", "database_id" => "0" );
+                $arr = array(   "api_key" => "","jwplayer_stretching" => "uniform","logging" => "NORMAL", "database_id" => "0", "disable_desc_updates" => 0 );
                 update_option('hss_options', $arr);
         }
 }
@@ -112,7 +112,11 @@ var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
 add_action('wp_ajax_get_download_links', 'get_download_links_callback');
 function get_download_links_callback() {
  $purchase_id = $_POST['purchase_id'];
- $video_id = get_post_meta($purchase_id, '_edd_video_id', true);
+ _log($_POST);
+if(get_post_meta($purchase_id, 'is_streaming_video_bundle', true))
+	 $video_id = get_post_meta($purchase_id, '_edd_group_id', true);
+else
+	 $video_id = get_post_meta($purchase_id, '_edd_video_id', true);
  echo hss_edd_get_video_download_links($video_id);
 
  die(); // this is required to return a proper result
@@ -131,7 +135,6 @@ jQuery(document).ready(function($) {
             action: 'get_download_links',
             purchase_id: event.target.id
         };
-
         // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
         $.post(ajaxurl, data, function(response) {
 	    //$('#'+event.target.id).css("visibility", "hidden");
@@ -659,7 +662,6 @@ function hss_edd_before_download_content($download_id) {
 		                        'httpversion' => '1.0',
 		                        'blocking' => true,
 		                        'headers' => array(),
-		                        'body' => $params,
 		                        'cookies' => array()
 		                    )
 		                );
@@ -775,7 +777,7 @@ function hss_edd_before_download_content($download_id) {
                                 }
 
 		                $video = $video."
-		                <script type=\"text/javascript\" src=\"https://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
+		                <script type=\"text/javascript\" src=\"http://www.hoststreamsell.com/mod/secure_videos/jwplayer-6/jwplayer.js\"></script>
 				<script type=\"text/javascript\">jwplayer.key=\"".$options['jwplayer_license']."\";</script>";
 				if($options["responsive_player"]==1){
 					$responsive_width="640";
@@ -865,13 +867,13 @@ function hss_edd_before_download_content($download_id) {
 			        $video .= "<BR>";
 
 			}
-        }
-	if($user_has_access=="true"){
-		echo $video;
-		do_action( 'hss_edd_show_video_purchased_extra_content', $post->ID);
-	}else{
-		echo $video;
-		do_action( 'hss_edd_show_video_not_purchased_extra_content', $post->ID);
+		if($user_has_access=="true"){
+			echo $video;
+			do_action( 'hss_edd_show_video_purchased_extra_content', $post->ID);
+		}else{
+			echo $video;
+			do_action( 'hss_edd_show_video_not_purchased_extra_content', $post->ID);
+        	}
 	}
 }
 add_action( 'edd_before_download_content', 'hss_edd_before_download_content' );
@@ -881,7 +883,7 @@ function hss_edd_after_download_content($download_id) {
 
         ob_start();
         do_action( 'hss_edd_show_video_purchase_details', $post->ID );
-        $content .= ob_get_clean();
+        $content = ob_get_clean();
 
         echo $content;
 }
@@ -1135,7 +1137,6 @@ function hss_edd_update_videos()
 							set_post_thumbnail( $post_ID, $thumb_id );
 
 						}
-						$category_found = false;
 						$terms = array();
 						if(!in_array($video_id,$seen_videos))
 						        array_push($seen_videos,$video_id);
@@ -1159,7 +1160,8 @@ function hss_edd_update_videos()
 						$term = get_term_by( 'name',$group_title,'download_category');
 						wp_update_term($term->term_id, 'download_category', array('description' => $group_description));
 						update_post_meta($post_ID, '_edd_video_id', $video_id);
-
+						
+						_log("setting _edd_video_id to ".$video_id." for ".$post_ID);
 						$group_video_post_ids[$group_video_post_index] = $post_ID;
 						$group_video_post_index+=1;
 					        $purchase_option_count = (int)$xml->result[0]->{'video'.$index}[0]->option_count;
@@ -1309,7 +1311,7 @@ function hss_edd_update_videos()
 	                                }
 
                                 	update_post_meta($post_ID, '_edd_group_id', $group_id);
-
+					_log("setting _edd_video_id to ".$video_id." for ".$post_ID);
 	                                $purchase_option_details = array();
                                         while($option_index <= $purchase_option_count)
         	                        {
@@ -1321,7 +1323,7 @@ function hss_edd_update_videos()
                                                 $bandwidth_cap = (string)$xml->result[0]->{'group_option'.$option_index}[0]->bandwidth_cap;
                                                 $time_limit = (string)$xml->result[0]->{'group_option'.$option_index}[0]->time_limit;
                                                 $rate_limit = (string)$xml->result[0]->{'group_option'.$option_index}[0]->rate_limit;
-                                                $download_limit = (string)$group_xml->result[0]->{'group_option'.$option_index}[0]->download_limit;
+                                                $download_limit = (string)$xml->result[0]->{'group_option'.$option_index}[0]->download_limit;
                                                 $option_name = $time_limit.' streaming access';
                                                 if($bandwidth_cap!="Unlimited")
                                                 	$option_name = $option_name.' '.$bandwidth_cap.' Data Cap';

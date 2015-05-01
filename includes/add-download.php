@@ -866,14 +866,14 @@ function hss_edd_before_download_content($download_id) {
 			        ";
 			        $video .= "<BR>";
 
-			}
-		if($user_has_access=="true"){
-			echo $video;
-			do_action( 'hss_edd_show_video_purchased_extra_content', $post->ID);
-		}else{
-			echo $video;
-			do_action( 'hss_edd_show_video_not_purchased_extra_content', $post->ID);
-        	}
+			if($user_has_access=="true"){
+				echo $video;
+				do_action( 'hss_edd_show_video_purchased_extra_content', $post->ID);
+			}else{
+				echo $video;
+				do_action( 'hss_edd_show_video_not_purchased_extra_content', $post->ID);
+        		}
+		}
 	}
 }
 add_action( 'edd_before_download_content', 'hss_edd_before_download_content' );

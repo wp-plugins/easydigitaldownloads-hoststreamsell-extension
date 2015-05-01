@@ -5,7 +5,7 @@ Contributors: hoststreamsell
 Tags: sell,video,streaming,cart
 Requires at least: 3.3
 Tested up to: 4.0
-Stable tag: 1.17
+Stable tag: 1.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -291,3 +291,7 @@ Fixed PHP open tag issue
 = 1.17 =
 
 Fixed some issues causing warnings
+
+= 1.18 =
+
+Fixed another issue causing warnings

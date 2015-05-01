@@ -6,7 +6,7 @@ Description: Sell Streaming Video Through WordPress (extends functionality in Ea
 Author: Gavin Byrne
 Author URI: https://www.hoststreamsell.com
 Contributors: 
-Version: 1.17
+Version: 1.18
 
 Easy Digital Downloads HSS Extension for Streaming Video is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
